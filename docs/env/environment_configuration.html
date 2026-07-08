@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSL2 安装与配置教程</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
+            --output-bg: #f1f5f9;
+            --output-text: #334155;
+            --border: #e2e8f0;
+            --warning-bg: #fff1f2;
+            --warning-border: #fecdd3;
+            --warning-text: #9f1239;
+            --success: #10b981;
+            --info-bg: #eff6ff;
+            --info-border: #bfdbfe;
+            --info-text: #1e40af;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
+            line-height: 1.7;
+            color: var(--text-main);
+            background-color: var(--bg-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 280px;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 40px 60px;
+            max-width: 1100px;
+        }
+
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-item {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.925rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .header-banner {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-banner h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .header-banner p {
+            margin: 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        section {
+            background: var(--bg-card);
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #334155;
+        }
+
+        .code-wrapper {
+            margin: 16px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: relative;
+        }
+
+        .code-header {
+            background-color: #1e293b;
+            color: #94a3b8;
+            padding: 6px 16px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .copy-btn.copied {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Monaco, Courier, monospace;
+            font-size: 0.925rem;
+            overflow-x: auto;
+        }
+
+        code:not(pre code) {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: #f1f5f9;
+            color: #b91c1c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .danger-box {
+            background-color: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .danger-box strong {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.05rem;
+        }
+
+        .info-box {
+            background-color: var(--info-bg);
+            border: 1px solid var(--info-border);
+            color: var(--info-text);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-box strong {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.05rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 14px 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: #334155;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        ol li {
+            margin-bottom: 12px;
+            color: #334155;
+        }
+
+        ul {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        .video-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ff3366 0%, #ee0979 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .video-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(238, 9, 121, 0.3);
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 20px;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 24px 16px;
+            }
+            .header-banner {
+                padding: 30px 20px;
+            }
+            .header-banner h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-title">🧭 教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../index.html">🏠 返回首页</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-1">一、什么是 WSL2</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2">二、系统要求</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-3">三、启用 WSL 功能</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-4">四、安装 Linux 发行版</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-5">五、设置用户名和密码</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-6">六、更新系统</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-7">七、安装常用工具</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-8">八、配置终端（可选）</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-9">九、常见问题解决</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header-banner">
+            <h1>WSL2 安装与配置教程</h1>
+            <p>在 Windows 上运行 Linux 子系统，无缝享受双系统体验</p>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;">
+            WSL（Windows Subsystem for Linux）是 Windows 10/11 内置的 Linux 子系统，让你可以在 Windows 上原生运行 Linux 命令行工具和应用。本教程将带你从零开始安装和配置 WSL2。
+        </p>
+
+        <section id="sec-1">
+            <h2>一、什么是 WSL2</h2>
+            <p>WSL2 是 WSL 的第二代版本，相比第一代有以下优势：</p>
+            <ul>
+                <li><strong>真正的 Linux 内核：</strong>WSL2 使用完整的 Linux 内核，而不是模拟层</li>
+                <li><strong>更好的性能：</strong>文件系统性能大幅提升，接近原生 Linux</li>
+                <li><strong>完整的系统调用支持：</strong>支持更多 Linux 应用和工具</li>
+                <li><strong>Docker 支持：</strong>可以直接运行 Docker Desktop</li>
+            </ul>
+            <p>推荐观看官方视频教程：</p>
+            <a href="https://www.bilibili.com/video/BV1tW42197za/?spm_id_from=333.337.search-card.all.click&vd_source=0ba551671a0a84c9ee70d05ef776807b" class="video-link" target="_blank">
+                🎬 观看视频教程
+            </a>
+        </section>
+
+        <section id="sec-2">
+            <h2>二、系统要求</h2>
+            <p>在安装 WSL2 之前，请确保你的 Windows 系统满足以下要求：</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>项目</th>
+                            <th>要求</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>操作系统版本</td><td>Windows 10 版本 1903 或更高（内部版本 18362+），或 Windows 11</td></tr>
+                        <tr><td>内存</td><td>至少 4GB RAM，建议 8GB 以上</td></tr>
+                        <tr><td>存储</td><td>至少 10GB 可用空间</td></tr>
+                        <tr><td>虚拟化</td><td>必须在 BIOS/UEFI 中启用硬件虚拟化</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="info-box">
+                <strong>💡 查看 Windows 版本：</strong>
+                <p>按下 <code>Win + R</code>，输入 <code>winver</code> 并回车，即可查看当前 Windows 版本。</p>
+            </div>
+        </section>
+
+        <section id="sec-3">
+            <h2>三、启用 WSL 功能</h2>
+            <h3>方法一：使用 PowerShell（推荐）</h3>
+            <p>以<strong>管理员身份</strong>打开 PowerShell，然后执行以下命令：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>wsl --install</code></pre>
+            </div>
+            <p>这个命令会自动完成以下操作：</p>
+            <ol>
+                <li>启用 WSL 和虚拟机平台功能</li>
+                <li>下载并安装 WSL2 Linux 内核</li>
+                <li>将 WSL2 设置为默认版本</li>
+                <li>安装 Ubuntu（默认发行版）</li>
+            </ol>
+
+            <h3>方法二：手动启用（高级用户）</h3>
+            <p>如果上述命令失败，可以手动执行以下步骤：</p>
+            
+            <p><strong>1. 启用 WSL 功能：</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart</code></pre>
+            </div>
+
+            <p><strong>2. 启用虚拟机平台：</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart</code></pre>
+            </div>
+
+            <p><strong>3. 重启电脑：</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>Restart-Computer</code></pre>
+            </div>
+
+            <p><strong>4. 下载安装 WSL2 内核：</strong></p>
+            <p>访问 <a href="https://aka.ms/wsl2kernel" target="_blank">WSL2 Linux 内核更新包</a> 下载并安装。</p>
+
+            <p><strong>5. 设置 WSL2 为默认版本：</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>wsl --set-default-version 2</code></pre>
+            </div>
+        </section>
+
+        <section id="sec-4">
+            <h2>四、安装 Linux 发行版</h2>
+            <h3>方法一：使用 Microsoft Store（推荐）</h3>
+            <ol>
+                <li>打开 Microsoft Store</li>
+                <li>搜索 "Linux" 或直接搜索发行版名称（如 Ubuntu、Debian、Fedora）</li>
+                <li>选择一个发行版并点击 "获取"</li>
+                <li>等待安装完成后，点击 "启动"</li>
+            </ol>
+
+            <h3>方法二：使用命令行安装</h3>
+            <p>查看可用的 Linux 发行版：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>wsl --list --online</code></pre>
+            </div>
+
+            <p>安装指定的发行版（以 Ubuntu 为例）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>wsl --install -d Ubuntu</code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 常用发行版：</strong>
+                <ul>
+                    <li><code>Ubuntu</code> - 最流行，适合新手</li>
+                    <li><code>Debian</code> - 稳定可靠</li>
+                    <li><code>Fedora</code> - 最新软件包</li>
+                    <li><code>openSUSE</code> - 企业级发行版</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="sec-5">
+            <h2>五、设置用户名和密码</h2>
+            <p>首次启动 WSL 时，系统会提示你创建用户名和密码。</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>Enter new UNIX username: yourname
+Enter new UNIX password: 
+Retype new UNIX password: 
+passwd: password updated successfully</code></pre>
+            </div>
+            <div class="info-box">
+                <strong>💡 重要提示：</strong>
+                <p>这个用户名和密码是 WSL 内部的 Linux 用户凭证，与 Windows 用户名无关。每次使用 <code>sudo</code> 命令时都需要输入这个密码。</p>
+            </div>
+        </section>
+
+        <section id="sec-6">
+            <h2>六、更新系统</h2>
+            <p>安装完成后，首先更新系统软件包：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>sudo apt update && sudo apt upgrade -y</code></pre>
+            </div>
+            <p><code>apt update</code> 更新软件源索引，<code>apt upgrade</code> 升级所有已安装的软件包到最新版本。</p>
+        </section>
+
+        <section id="sec-7">
+            <h2>七、安装常用工具</h2>
+            <p>安装开发常用的工具和依赖：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code># 安装 build-essential（编译工具）
+sudo apt install build-essential -y
+
+# 安装 Git
+sudo apt install git -y
+
+# 安装 curl 和 wget
+sudo apt install curl wget -y
+
+# 安装 Node.js（通过 nvm）
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+source ~/.bashrc
+nvm install --lts
+
+# 安装 Python
+sudo apt install python3 python3-pip -y</code></pre>
+            </div>
+            <div class="info-box">
+                <strong>💡 验证安装：</strong>
+                <p>安装完成后，可以使用以下命令验证：</p>
+            </div>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>git --version
+node --version
+python3 --version</code></pre>
+            </div>
+        </section>
+
+        <section id="sec-8">
+            <h2>八、配置终端（可选）</h2>
+            <h3>安装 Windows Terminal（推荐）</h3>
+            <p>Windows Terminal 是微软官方的现代化终端，支持多标签页、自定义主题等功能。</p>
+            <ol>
+                <li>打开 Microsoft Store</li>
+                <li>搜索 "Windows Terminal"</li>
+                <li>点击 "获取" 安装</li>
+            </ol>
+
+            <h3>配置默认终端</h3>
+            <p>打开 Windows Terminal 设置，将 Ubuntu 设为默认启动配置文件。</p>
+
+            <h3>美化终端（Oh My Zsh）</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code># 安装 Zsh
+sudo apt install zsh -y
+
+# 安装 Oh My Zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# 安装 Powerlevel10k 主题
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+
+# 设置主题（修改 ~/.zshrc 中的 ZSH_THEME）
+ZSH_THEME="powerlevel10k/powerlevel10k"</code></pre>
+            </div>
+        </section>
+
+        <section id="sec-9">
+            <h2>九、常见问题解决</h2>
+            
+            <h3>问题 1：WSL2 无法启动</h3>
+            <div class="danger-box">
+                <strong>❌ 错误信息：</strong>
+                <p>"WSL 2 requires an update to its kernel component."</p>
+            </div>
+            <p><strong>解决方案：</strong></p>
+            <ol>
+                <li>下载并安装 <a href="https://aka.ms/wsl2kernel" target="_blank">WSL2 Linux 内核更新包</a></li>
+                <li>重启电脑</li>
+            </ol>
+
+            <h3>问题 2：虚拟化未启用</h3>
+            <div class="danger-box">
+                <strong>❌ 错误信息：</strong>
+                <p>"Virtualization must be enabled in BIOS."</p>
+            </div>
+            <p><strong>解决方案：</strong></p>
+            <ol>
+                <li>重启电脑，进入 BIOS/UEFI 设置</li>
+                <li>找到 "Virtualization"、"Intel VT-x" 或 "AMD-V" 选项</li>
+                <li>将其设置为 "Enabled"</li>
+                <li>保存并退出</li>
+            </ol>
+
+            <h3>问题 3：文件系统性能慢</h3>
+            <p><strong>解决方案：</strong></p>
+            <ul>
+                <li>确保使用的是 WSL2（不是 WSL1）</li>
+                <li>将项目文件放在 WSL 内部目录（<code>/home/yourname/</code>），而不是 Windows 文件系统（<code>/mnt/c/</code>）</li>
+            </ul>
+
+            <h3>问题 4：如何查看当前 WSL 版本</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>wsl --list --verbose</code></pre>
+            </div>
+
+            <h3>问题 5：如何切换 WSL 版本</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code># 切换到 WSL2
+wsl --set-version Ubuntu 2
+
+# 切换到 WSL1
+wsl --set-version Ubuntu 1</code></pre>
+            </div>
+
+            <h3>问题 6：如何卸载 WSL 发行版</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>powershell</span></div>
+                <pre><code>wsl --unregister Ubuntu</code></pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>🎉 恭喜完成！</h2>
+            <p>现在你已经成功安装并配置了 WSL2。可以通过以下方式启动：</p>
+            <ul>
+                <li>在开始菜单中搜索并点击 Ubuntu</li>
+                <li>打开 Windows Terminal，点击下拉菜单选择 Ubuntu</li>
+                <li>在 PowerShell 中输入 <code>wsl</code> 命令</li>
+            </ul>
+            <p>享受在 Windows 上使用 Linux 的便利吧！🚀</p>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const codeWrappers = document.querySelectorAll('.code-wrapper');
+            
+            codeWrappers.forEach(wrapper => {
+                const header = wrapper.querySelector('.code-header');
+                const codeBlock = wrapper.querySelector('pre code');
+                
+                if (header && codeBlock) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.innerHTML = '📋 复制代码';
+                    
+                    copyBtn.addEventListener('click', () => {
+                        const codeText = codeBlock.innerText;
+                        
+                        navigator.clipboard.writeText(codeText).then(() => {
+                            copyBtn.innerHTML = '✔ 已复制!';
+                            copyBtn.classList.add('copied');
+                            
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '📋 复制代码';
+                                copyBtn.classList.remove('copied');
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Copy failed:', err);
+                            copyBtn.innerHTML = '❌ 失败';
+                        });
+                    });
+                    
+                    header.appendChild(copyBtn);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux 入门命令教程（适合零基础）</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
+            --output-bg: #f1f5f9;
+            --output-text: #334155;
+            --border: #e2e8f0;
+            --warning-bg: #fff1f2;
+            --warning-border: #fecdd3;
+            --warning-text: #9f1239;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
+            line-height: 1.7;
+            color: var(--text-main);
+            background-color: var(--bg-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Responsive Sidebar Layout */
+        .sidebar {
+            position: fixed;
+            width: 280px;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 40px 60px;
+            max-width: 1100px;
+        }
+
+        /* Sidebar Elements */
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-item {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.925rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        /* Content Elements */
+        .header-banner {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-banner h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .header-banner p {
+            margin: 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        section {
+            background: var(--bg-card);
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #334155;
+        }
+
+        /* Enhanced Code Blocks */
+        .code-wrapper {
+            margin: 16px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: relative;
+        }
+
+        .code-header {
+            background-color: #1e293b;
+            color: #94a3b8;
+            padding: 6px 16px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .copy-btn.copied {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Monaco, Courier, monospace;
+            font-size: 0.925rem;
+            overflow-x: auto;
+        }
+
+        /* Output Blocks */
+        .output-wrapper {
+            margin: 12px 0 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border-left: 4px solid #cbd5e1;
+        }
+
+        .output-header {
+            background-color: #e2e8f0;
+            color: #64748b;
+            padding: 4px 16px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .output-box {
+            margin: 0;
+            padding: 14px 16px;
+            background-color: var(--output-bg);
+            color: var(--output-text);
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+
+        /* Inline code */
+        code:not(pre code) {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: #f1f5f9;
+            color: #b91c1c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        /* Danger Alert */
+        .danger-box {
+            background-color: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .danger-box strong {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.05rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 14px 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: #334155;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* File Tree Visualization */
+        .tree-view {
+            font-family: "SFMono-Regular", Consolas, monospace;
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 6px;
+            margin: 12px 0;
+            color: #334155;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 992px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 20px;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 24px 16px;
+            }
+            .header-banner {
+                padding: 30px 20px;
+            }
+            .header-banner h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-title">🧭 教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../index.html">🏠 返回首页</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-1">一、终端（Terminal）</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2">二、查看当前目录</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-3">三、查看文件</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-4">四、切换目录</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-5">五、创建文件和目录</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-6">六、查看文件内容</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-7">七、复制、移动、删除</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-8">八、搜索文件</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-9">九、搜索内容</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-10">十、查看系统信息</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-11">十一、软件安装（Ubuntu）</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-12">十二、网络命令</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-13">十三、重定向与管道</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-14">十四、常用快捷键</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-15">十五、常用命令速查表</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="header-banner">
+            <h1>Linux 入门命令教程</h1>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;">
+            Linux 是开发、人工智能、服务器等领域最常用的操作系统。掌握常见命令后，就可以完成绝大部分日常操作。
+        </p>
+
+        <!-- Section 1 -->
+        <section id="sec-1">
+            <h2>一、终端（Terminal）</h2>
+            <p>终端是我们输入命令与 Linux 系统进行交互的窗口。</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>echo Hello World</code></pre>
+            </div>
+            <div class="output-wrapper">
+                <div class="output-header">输出</div>
+                <div class="output-box">Hello World</div>
+            </div>
+        </section>
+
+        <!-- Section 2 -->
+        <section id="sec-2">
+            <h2>二、查看当前目录</h2>
+            <h3>pwd (Print Working Directory)</h3>
+            <p>用于查看自己当前在系统中所处的绝对路径位置。</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>pwd</code></pre>
+            </div>
+            <div class="output-wrapper">
+                <div class="output-header">示例输出</div>
+                <div class="output-box">/home/qi</div>
+            </div>
+            <p>💡 上述输出表示当前位于：<code>/home/qi</code> 目录下。</p>
+        </section>
+
+        <!-- Section 3 -->
+        <section id="sec-3">
+            <h2>三、查看文件</h2>
+            <h3>ls</h3>
+            <p>查看当前目录下有哪些文件和子目录。</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>ls</code></pre>
+            </div>
+            <div class="output-wrapper">
+                <div class="output-header">示例输出</div>
+                <div class="output-box">Desktop  Documents  Downloads  Pictures</div>
+            </div>
+
+            <h3>常用参数：ls -a</h3>
+            <p>查看所有文件，包含隐藏文件。</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>ls -a</code></pre>
+            </div>
+            <div class="output-wrapper">
+                <div class="output-header">示例输出</div>
+                <div class="output-box">.  ..  .git  .bashrc  test.txt</div>
+            </div>
+            <p>📌 <strong>提示：</strong> Linux 中以 <code>.</code> 开头的文件或目录都是隐藏文件。</p>
+        </section>
+
+        <!-- Section 4 -->
+        <section id="sec-4">
+            <h2>四、切换目录</h2>
+            <h3>cd (Change Directory)</h3>
+            
+            <p><strong>1. 进入某个目录</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>cd Documents</code></pre>
+            </div>
+
+            <p><strong>2. 返回上一层目录</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>cd ..</code></pre>
+            </div>
+            <p>例如：从 <code>/home/qi/Documents</code> 变成 <code>/home/qi</code></p>
+
+            <p><strong>3. 返回家目录（Home Directory）</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>cd</code></pre>
+            </div>
+            <p>或者使用波浪号：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>cd ~</code></pre>
+            </div>
+
+            <p><strong>4. 进入绝对路径</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>cd /home/qi/Desktop</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 5 -->
+        <section id="sec-5">
+            <h2>五、创建文件和目录</h2>
+            <h3>mkdir (Make Directory)</h3>
+            <p>创建新目录：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>mkdir project</code></pre>
+            </div>
+
+            <p>一次性创建多级嵌套目录：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>mkdir -p a/b/c</code></pre>
+            </div>
+            <p>目录结构如下：</p>
+            <div class="tree-view">a/
+└── b/
+    └── c/</div>
+
+            <h3>touch</h3>
+            <p>创建一个空文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>touch test.txt</code></pre>
+            </div>
+            <p>同时创建多个文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>touch a.txt b.txt c.txt</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 6 -->
+        <section id="sec-6">
+            <h2>六、查看文件内容</h2>
+            
+            <h3>cat</h3>
+            <p>一次性查看整个文件的所有内容（适合小文件）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>cat test.txt</code></pre>
+            </div>
+
+            <h3>less</h3>
+            <p>分页查看大文件，不会一次性刷屏：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>less test.txt</code></pre>
+            </div>
+            <p><strong>交互快捷键：</strong></p>
+            <ul>
+                <li><code>Space</code> (空格键) ：下一页</li>
+                <li><code>b</code> ：上一页</li>
+                <li><code>q</code> ：退出查看</li>
+            </ul>
+
+            <h3>head</h3>
+            <p>默认查看文件的前 10 行：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>head test.txt</code></pre>
+            </div>
+            <p>查看指定的前 20 行：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>head -20 test.txt</code></pre>
+            </div>
+
+            <h3>tail</h3>
+            <p>默认查看文件的最后 10 行：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>tail test.txt</code></pre>
+            </div>
+            <p>查看最后 20 行：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>tail -20 test.txt</code></pre>
+            </div>
+            <p>💥 <strong>实用技巧：实时查看日志更新</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>tail -f log.txt</code></pre>
+            </div>
+            <p>退出实时查看状态请按：<code>Ctrl + C</code></p>
+        </section>
+
+        <!-- Section 7 -->
+        <section id="sec-7">
+            <h2>七、复制、移动、删除</h2>
+            
+            <h3>cp (Copy)</h3>
+            <p>复制文件（将 <code>a.txt</code> 复制一份并命名为 <code>b.txt</code>）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>cp a.txt b.txt</code></pre>
+            </div>
+            <p>复制整个目录（需要加 <code>-r</code> 参数表示递归）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>cp -r project backup</code></pre>
+            </div>
+
+            <h3>mv (Move)</h3>
+            <p>移动文件到指定目录：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>mv test.txt Documents/</code></pre>
+            </div>
+            <p>重命名文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>mv old.txt new.txt</code></pre>
+            </div>
+
+            <h3>rm (Remove)</h3>
+            <p>删除文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>rm test.txt</code></pre>
+            </div>
+            <p>删除目录（需加 <code>-r</code>）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>rm -r project</code></pre>
+            </div>
+            <p>强制删除目录及其下所有内容（无提示）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>rm -rf project</code></pre>
+            </div>
+
+            <div class="danger-box">
+                <strong>⚠️ 极其危险的命令：</strong>
+                <div class="code-wrapper" style="margin: 10px 0 0 0;">
+                    <div class="code-header" style="background-color:#9f1239; color:#fecdd3; border-bottom: 1px solid #7f1d1d;"><span>⚡ DANGER</span></div>
+                    <pre style="background-color:#4c0519; color:#fecdd3;"><code>rm -rf /</code></pre>
+                </div>
+                <p style="margin: 8px 0 0 0; font-size: 0.9rem;">千万不要在生产环境执行此命令！它会强制删除根目录下的整个文件系统。虽然现代 Linux 普遍做了防护，但仍需保持敬畏。</p>
+            </div>
+        </section>
+
+        <!-- Section 8 -->
+        <section id="sec-8">
+            <h2>八、搜索文件</h2>
+            <h3>find</h3>
+            <p>在当前目录 <code>.</code> 及其子目录下，查找所有扩展名为 <code>.txt</code> 的文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>find . -name "*.txt"</code></pre>
+            </div>
+            
+            <p>仅查找目录类型（Directories）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>find . -type d</code></pre>
+            </div>
+
+            <p>仅查找普通文件类型（Files）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>find . -type f</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 9 -->
+        <section id="sec-9">
+            <h2>九、搜索内容</h2>
+            <h3>grep</h3>
+            <p>在 <code>test.txt</code> 文件中搜索包含指定关键词 <code>hello</code> 的文本行：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>grep hello test.txt</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 10 -->
+        <section id="sec-10">
+            <h2>十、查看系统信息</h2>
+            
+            <p>查看当前登录的用户名称：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>whoami</code></pre>
+            </div>
+
+            <p>查看系统当前日期和时间：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>date</code></pre>
+            </div>
+
+            <p>查看内核版本与完整的系统详细信息：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>uname -a</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 11 -->
+        <section id="sec-11">
+            <h2>十一、软件安装（Ubuntu）</h2>
+            
+            <p>更新本地包索引软件源：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>sudo apt update</code></pre>
+            </div>
+
+            <p>升级所有已安装的软件包到最新版本：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>sudo apt upgrade</code></pre>
+            </div>
+
+            <p>安装指定的软件（例如安装 git）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>sudo apt install git</code></pre>
+            </div>
+
+            <p>卸载指定的软件：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>sudo apt remove git</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 12 -->
+        <section id="sec-12">
+            <h2>十二、网络命令</h2>
+            
+            <p>查看本机的网卡及 IP 地址信息：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>ip addr</code></pre>
+            </div>
+
+            <p>测试网络连通性：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>ping www.baidu.com</code></pre>
+            </div>
+            <p>💡 提示：Linux 下 ping 会持续进行，可按 <code>Ctrl + C</code> 强行停止。</p>
+
+            <p>使用 <code>wget</code> 命令行下载文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>wget https://example.com/file.zip</code></pre>
+            </div>
+
+            <p>或者使用 <code>curl</code> 下载并保存文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>curl -O https://example.com/file.zip</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 13 -->
+        <section id="sec-13">
+            <h2>十三、重定向与管道</h2>
+            
+            <p><strong>1. 输出重定向 <code>&gt;</code></strong>（覆盖模式：将命令结果写入文件，原内容会被清空）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>ls > list.txt</code></pre>
+            </div>
+
+            <p><strong>2. 追加重定向 <code>&gt;&gt;</code></strong>（追加模式：在文件末尾新起一行添加内容）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>echo hello >> list.txt</code></pre>
+            </div>
+
+            <p><strong>3. 管道 <code>|</code></strong>（将前一个命令的输出结果，作为下一个命令的输入来处理）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>bash</span></div>
+                <pre><code>ls | grep txt</code></pre>
+            </div>
+            <p>🔄 <em>原理解析：<code>ls</code> 罗列出的文件列表 ↓ 传入 <code>grep</code> 进行二次过滤筛选包含 txt 的行。</em></p>
+        </section>
+
+        <!-- Section 14 -->
+        <section id="sec-14">
+            <h2>十四、常用快捷键</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>快捷键 / 命令</th>
+                            <th>功能说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Ctrl + C</code></td><td>强制终止当前正在运行的程序</td></tr>
+                        <tr><td><code>Ctrl + Z</code></td><td>将当前程序挂起后台暂休</td></tr>
+                        <tr><td><code>Ctrl + D</code></td><td>退出当前终端会话 (等同于 exit)</td></tr>
+                        <tr><td><code>Ctrl + L</code></td><td>快速清屏 (保持当前状态)</td></tr>
+                        <tr><td><code>↑</code> (方向键上)</td><td>切换显示上一条执行过的历史命令</td></tr>
+                        <tr><td><code>↓</code> (方向键下)</td><td>切换显示下一条执行过的历史命令</td></tr>
+                        <tr><td><code>Tab</code></td><td>自动补全命令或文件路径 (连按两次列出匹配)</td></tr>
+                        <tr><td><code>Ctrl + R</code></td><td>进入交互式搜索历史命令模式</td></tr>
+                        <tr><td><code>history</code></td><td>直接控制台打印查看所有的历史执行命令</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 15 -->
+        <section id="sec-15">
+            <h2>十五、常用命令速查表</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>常用命令</th>
+                            <th>主要功能</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>pwd</code></td><td>查看当前所处的绝对路径</td></tr>
+                        <tr><td><code>ls</code></td><td>列出当前目录下的文件与子目录</td></tr>
+                        <tr><td><code>cd</code></td><td>切换或进入指定目录</td></tr>
+                        <tr><td><code>mkdir</code></td><td>创建新目录</td></tr>
+                        <tr><td><code>touch</code></td><td>创建空文件或更新文件时间戳</td></tr>
+                        <tr><td><code>cat</code></td><td>一并查看输出文件的全部内容</td></tr>
+                        <tr><td><code>less</code></td><td>长文本大文件分页交互式查看</td></tr>
+                        <tr><td><code>cp</code></td><td>复制文件或目录 (<code>-r</code>)</td></tr>
+                        <tr><td><code>mv</code></td><td>移动文件或为文件重命名</td></tr>
+                        <tr><td><code>rm</code></td><td>删除文件或整个目录 (<code>-rf</code>)</td></tr>
+                        <tr><td><code>find</code></td><td>按名称、类型等条件搜索寻找文件</td></tr>
+                        <tr><td><code>grep</code></td><td>强大的文本行关键词检索过滤工具</td></tr>
+                        <tr><td><code>chmod</code></td><td>修改文件或目录的访问权限</td></tr>
+                        <tr><td><code>tar</code></td><td>打包、压缩或解压文件工具</td></tr>
+                        <tr><td><code>ps</code></td><td>快照查看当前系统的活动进程状态</td></tr>
+                        <tr><td><code>top</code></td><td>动态实时查看系统资源占用率及进程排行</td></tr>
+                        <tr><td><code>kill</code></td><td>依据进程 PID 结束终止指定进程</td></tr>
+                        <tr><td><code>ip addr</code></td><td>查看本机网络接口与 IP 配置</td></tr>
+                        <tr><td><code>ping</code></td><td>测试检测与目的主机的网络连通性</td></tr>
+                        <tr><td><code>wget</code> / <code>curl</code></td><td>通过网络链接地址直接下载文件</td></tr>
+                        <tr><td><code>history</code></td><td>显示曾执行过的命令历史列表</td></tr>
+                        <tr><td><code>clear</code> 或 <code>Ctrl+L</code></td><td>清除终端屏幕显示的旧内容</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Script for Copy to Clipboard Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const codeWrappers = document.querySelectorAll('.code-wrapper');
+            
+            codeWrappers.forEach(wrapper => {
+                const header = wrapper.querySelector('.code-header');
+                const codeBlock = wrapper.querySelector('pre code');
+                
+                if (header && codeBlock) {
+                    // Create copy button
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.innerHTML = '📋 复制代码';
+                    
+                    // Handle click event
+                    copyBtn.addEventListener('click', () => {
+                        const codeText = codeBlock.innerText;
+                        
+                        navigator.clipboard.writeText(codeText).then(() => {
+                            copyBtn.innerHTML = '✔ 已复制!';
+                            copyBtn.classList.add('copied');
+                            
+                            // Reset button text after 2 seconds
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '📋 复制代码';
+                                copyBtn.classList.remove('copied');
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Copy failed:', err);
+                            copyBtn.innerHTML = '❌ 失败';
+                        });
+                    });
+                    
+                    header.appendChild(copyBtn);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

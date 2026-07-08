@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS2 安装教程 - Jazzy Jalisco</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
+            --output-bg: #f1f5f9;
+            --output-text: #334155;
+            --border: #e2e8f0;
+            --warning-bg: #fff1f2;
+            --warning-border: #fecdd3;
+            --warning-text: #9f1239;
+            --success: #10b981;
+            --info-bg: #eff6ff;
+            --info-border: #bfdbfe;
+            --info-text: #1e40af;
+            --highlight-bg: #fef3c7;
+            --highlight-border: #fde68a;
+            --highlight-text: #92400e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
+            line-height: 1.7;
+            color: var(--text-main);
+            background-color: var(--bg-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 280px;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 40px 60px;
+            max-width: 1100px;
+        }
+
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-item {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.925rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .header-banner {
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-banner h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .header-banner p {
+            margin: 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        section {
+            background: var(--bg-card);
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            font-size: 1rem;
+            color: #334155;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #334155;
+        }
+
+        .code-wrapper {
+            margin: 16px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: relative;
+        }
+
+        .code-header {
+            background-color: #1e293b;
+            color: #94a3b8;
+            padding: 6px 16px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .copy-btn.copied {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Monaco, Courier, monospace;
+            font-size: 0.925rem;
+            overflow-x: auto;
+        }
+
+        code:not(pre code) {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: #f1f5f9;
+            color: #b91c1c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .danger-box {
+            background-color: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .danger-box strong {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.05rem;
+        }
+
+        .info-box {
+            background-color: var(--info-bg);
+            border: 1px solid var(--info-border);
+            color: var(--info-text);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-box strong {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.05rem;
+        }
+
+        .highlight-box {
+            background-color: var(--highlight-bg);
+            border: 1px solid var(--highlight-border);
+            color: var(--highlight-text);
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-weight: 500;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 14px 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: #334155;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        ol li {
+            margin-bottom: 12px;
+            color: #334155;
+        }
+
+        ul {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 12px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        blockquote {
+            background-color: #f8fafc;
+            border-left: 4px solid var(--primary);
+            padding: 12px 16px;
+            margin: 16px 0;
+            border-radius: 0 6px 6px 0;
+            color: #475569;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 20px;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 24px 16px;
+            }
+            .header-banner {
+                padding: 30px 20px;
+            }
+            .header-banner h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-title">🧭 教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../index.html">🏠 返回首页</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-1">一、版本选择原则</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2">二、官方标准安装教程</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2-1">（1）核心版本分类</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2-2">（2）前提准备</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2-3">（3）安装ROS2 Jazzy</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2-4">（4）验证安装是否成功</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2-5">（5）安装其他开发工具</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header-banner">
+            <h1>ROS2 安装教程</h1>
+            <p>Jazzy Jalisco 版本安装指南（Ubuntu 24.04）</p>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;">
+            本教程详细介绍如何在 Ubuntu 24.04 上安装 ROS2 Jazzy Jalisco 版本。ROS2 是下一代机器人操作系统，为机器人开发提供了强大的工具和框架。
+        </p>
+
+        <section id="sec-1">
+            <h2>一、版本选择原则</h2>
+            <p>Ubuntu 版本与 ROS2 版本严格绑定，本教程使用 Ubuntu 24.04 LTS，因此安装最新的 Jazzy Jalisco 版本的 ROS2。</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ubuntu 版本</th>
+                            <th>ROS 2 版本</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>20.04 LTS</td><td>Foxy Fitzroy</td><td>已停止支持</td></tr>
+                        <tr><td>22.04 LTS</td><td>Humble Hawksbill</td><td>长期支持</td></tr>
+                        <tr><td>24.04 LTS</td><td>Jazzy Jalisco</td><td>最新 LTS</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="sec-2">
+            <h2>二、官方标准安装教程</h2>
+            
+            <section id="sec-2-1">
+                <h3>（1）核心版本分类</h3>
+                <p>ROS2 提供三种安装版本，根据需求选择合适的版本：</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>版本名称</th>
+                                <th>包名</th>
+                                <th>包含内容</th>
+                                <th>适用场景</th>
+                                <th>磁盘占用</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>ROS-Base</strong></td>
+                                <td><code>ros-jazzy-ros-base</code></td>
+                                <td>仅包含核心通信库、CLI 工具、构建工具。不包含 GUI 工具或编译器。</td>
+                                <td>嵌入式设备、Docker 容器、无头服务器、只需运行节点的场景。</td>
+                                <td>~300 MB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Desktop</strong></td>
+                                <td><code>ros-jazzy-desktop</code></td>
+                                <td>Base + 可视化工具 + 编译工具。包含 RViz2, Gazebo, rqt, 以及 C++/Python 开发库。</td>
+                                <td>标准开发环境。大多数开发者、研究人员的首选。</td>
+                                <td>~2.5 GB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Desktop Full</strong></td>
+                                <td><code>ros-jazzy-desktop-full</code></td>
+                                <td>Desktop + 仿真器 + 导航/感知库。包含完整的仿真环境、SLAM、Navigation2、Perception 库等。</td>
+                                <td>需要完整仿真、自动驾驶算法开发、复杂机器人系统集成的场景。</td>
+                                <td>~4.0 GB+</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="highlight-box">
+                    💡 鉴于大家是初学者，建议选择 <strong>安装桌面完整版</strong>（ros-jazzy-desktop-full）进行安装使用。
+                </div>
+            </section>
+
+            <section id="sec-2-2">
+                <h3>（2）前提准备</h3>
+                
+                <h4>1. 检查操作系统版本</h4>
+                <p>首先，确保你的系统版本是 Ubuntu 24.04。可以使用以下命令检查：</p>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code>lsb_release -a</code></pre>
+                </div>
+                <img src="https://i-blog.csdnimg.cn/img_convert/6a8c0f97c22e5eca630675099f5c9908.png" alt="检查操作系统版本">
+                <p>如果返回的版本不是 Ubuntu 24.04，建议先升级或安装合适的操作系统版本。</p>
+
+                <h4>2. 设置 UTF-8 支持</h4>
+                <p>确保系统支持 UTF-8 编码。ROS 2 需要 UTF-8 编码支持。运行以下命令检查并设置 UTF-8：</p>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code># 检查当前语言设置
+locale
+
+# 安装并配置 UTF-8
+sudo apt update && sudo apt install locales
+sudo locale-gen en_US en_US.UTF-8
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+# 检查当前语言设置
+locale</code></pre>
+                </div>
+                <img src="https://i-blog.csdnimg.cn/img_convert/30bc150235ced7250227e44d4a5a630e.png" alt="UTF-8 设置">
+                <div class="info-box">
+                    <strong>💡 重要提示：</strong>
+                    <p>以上操作必须在同一个终端中执行，并且接下来的操作也必须在这个终端中执行。</p>
+                </div>
+
+                <h4>3. 启用 Universe 存储库</h4>
+                <p>Ubuntu 24.04 通常会默认启用 Universe 存储库，但你可以通过以下命令确认并启用它：</p>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code>sudo apt install software-properties-common
+sudo add-apt-repository universe</code></pre>
+                </div>
+                <div class="highlight-box">
+                    ⚠️ 注意执行过程需要<strong>手动按一次回车</strong>确认。
+                </div>
+                <img src="https://i-blog.csdnimg.cn/img_convert/88a1024dca4ab5b904317fbb0fe6d295.png" alt="启用 Universe 存储库">
+            </section>
+
+            <section id="sec-2-3">
+                <h3>（3）安装 ROS2 Jazzy</h3>
+                
+                <h4>1. 安装所需依赖</h4>
+                <ul>
+                    <li><strong>curl</strong>：用于下载文件，设置 ROS 2 仓库。（之前的配置已经安装过）</li>
+                    <li><strong>gnupg</strong>：用于处理 GPG 密钥，验证下载的包的来源。</li>
+                    <li><strong>lsb-release</strong>：提供有关操作系统版本的信息，ROS 2 使用它来确认系统的版本和发行信息。</li>
+                </ul>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code>sudo apt install curl gnupg lsb-release -y</code></pre>
+                </div>
+
+                <h4>2. 设置 ROS 2 软件源</h4>
+                
+                <h5>下载 ROS2 GPG 密钥</h5>
+                <div class="highlight-box">
+                    ⚠️ 注意：在 PDF 复制时可能会出现换行符，请手动拼接成一行指令后再复制到 Linux 终端运行。
+                </div>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code># 下载 ROS 2 GPG 密钥
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg</code></pre>
+                </div>
+                <div class="info-box">
+                    <strong>✅ 执行成功后无输出。</strong>
+                </div>
+                <p><strong>执行失败（有输出）的情况：</strong></p>
+                <ul>
+                    <li><strong>网络不通：</strong>curl: (7) Failed to connect to raw.githubusercontent.com port 443: Connection refused</li>
+                    <li><strong>权限不足：</strong>/usr/share/keyrings/ros-archive-keyring.gpg: Permission denied</li>
+                    <li><strong>链接失效：</strong>curl: (22) The requested URL returned error: 404</li>
+                </ul>
+
+                <h5>添加 ROS2 软件源</h5>
+                <div class="highlight-box">
+                    ⚠️ 注意：在 PDF 复制时可能会出现换行符，请手动拼接成一行指令后再复制到 Linux 终端运行。
+                </div>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code># 添加 ROS 2 软件源
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null</code></pre>
+                </div>
+                <div class="info-box">
+                    <strong>✅ 执行成功后无输出。</strong>
+                </div>
+
+                <h4>3. 安装 ROS2</h4>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code>sudo apt update  # 更新包管理器的本地软件包索引
+sudo apt upgrade -y 
+sudo apt install ros-jazzy-desktop-full -y</code></pre>
+                </div>
+                <div class="highlight-box">
+                    ⏳ 等待过程时间较长，请耐心等待。
+                </div>
+
+                <h4>常见问题与解决方案</h4>
+                <div class="danger-box">
+                    <strong>❌ 错误信息：</strong>
+                    <p>E: Unable to locate package ros-jazzy-desktop</p>
+                </div>
+                <img src="https://i-blog.csdnimg.cn/img_convert/d53d4cd57a288ba778056a3ada38d506.png" alt="安装错误">
+                <p><strong>根本原因：</strong></p>
+                <blockquote>
+                    <ol>
+                        <li>未正确添加 ROS 官方软件源或 GPG 密钥。</li>
+                        <li>添加软件源后未执行 <code>sudo apt update</code> 来刷新本地软件包索引。</li>
+                        <li>网络问题导致无法访问 ROS 官方源。</li>
+                    </ol>
+                </blockquote>
+                <p><strong>解决方案：</strong></p>
+                <blockquote>
+                    <ol>
+                        <li>重新执行 <a href="#sec-2-3">设置 ROS 2 软件源</a></li>
+                        <li>先执行 <code>sudo apt update</code>，再执行安装</li>
+                        <li>多执行几次，或检查网络连接。</li>
+                    </ol>
+                </blockquote>
+
+                <h4>4. 配置环境变量</h4>
+                <p>为了让 ROS2 在每个终端中可以使用，需要配置环境变量：</p>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code># 添加到 .bashrc
+echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+
+# 立即生效
+source ~/.bashrc</code></pre>
+                </div>
+            </section>
+
+            <section id="sec-2-4">
+                <h3>（4）验证安装是否成功</h3>
+                
+                <h4>1. 检查 ROS 2 版本</h4>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code>echo $ROS_DISTRO
+# 应输出: jazzy</code></pre>
+                </div>
+
+                <h4>2. 运行 talker-listener 示例</h4>
+                <p>这个案例需要在两个终端中运行，一个终端运行 talker，一个终端运行 listener：</p>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code># 终端 1: 运行 talker
+ros2 run demo_nodes_py talker
+
+# 终端 2: 运行 listener
+ros2 run demo_nodes_py listener</code></pre>
+                </div>
+                <div class="info-box">
+                    <strong>💡 提示：</strong>
+                    <p>在打开第二个终端运行时如果提示 ros2 找不到，就再运行一下 <code>source ~/.bashrc</code></p>
+                </div>
+                <img src="https://i-blog.csdnimg.cn/img_convert/11c2b1a62aa34201416ff5b39ca1b66d.png" alt="talker-listener 示例">
+
+                <h4>3. 运行小海龟仿真</h4>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code># 终端 1: 启动仿真
+ros2 run turtlesim turtlesim_node
+
+# 终端 2: 启动键盘控制
+ros2 run turtlesim turtle_teleop_key</code></pre>
+                </div>
+                <div class="highlight-box">
+                    ⚠️ 注意：用键盘控制小海龟移动，需要把鼠标先点一下<strong>启动键盘控制</strong>的 terminal 窗口（相当于选定），然后才能实现控制。
+                </div>
+                <img src="https://i-blog.csdnimg.cn/img_convert/0ec2baa71a440dcc84fb8edd8c377bd9.png" alt="小海龟仿真">
+                <p>如果以上步骤都能正常运行，说明安装成功！🎉</p>
+            </section>
+
+            <section id="sec-2-5">
+                <h3>（5）安装其他开发工具</h3>
+                
+                <h4>1. 更新系统并安装开发工具</h4>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code>sudo apt update && sudo apt install ros-dev-tools -y</code></pre>
+                </div>
+
+                <h4>2. 安装自动补全功能</h4>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code>sudo apt install python3-argcomplete</code></pre>
+                </div>
+
+                <h4>3. 安装 colcon 和 pip</h4>
+                <div class="code-wrapper">
+                    <div class="code-header"><span>bash</span></div>
+                    <pre><code>sudo apt install python3-pip -y
+sudo apt install python3-colcon-common-extensions</code></pre>
+                </div>
+            </section>
+        </section>
+
+        <section>
+            <h2>🎉 恭喜完成！</h2>
+            <p>你已经成功安装了 ROS2 Jazzy Jalisco 版本。现在可以开始你的机器人开发之旅了！</p>
+            <p>推荐学习路径：</p>
+            <ul>
+                <li>学习 ROS2 核心概念（Node、Topic、Service、Action）</li>
+                <li>尝试编写简单的 C++/Python 节点</li>
+                <li>使用 RViz2 进行可视化</li>
+                <li>学习使用 Gazebo 进行仿真</li>
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const codeWrappers = document.querySelectorAll('.code-wrapper');
+            
+            codeWrappers.forEach(wrapper => {
+                const header = wrapper.querySelector('.code-header');
+                const codeBlock = wrapper.querySelector('pre code');
+                
+                if (header && codeBlock) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.innerHTML = '📋 复制代码';
+                    
+                    copyBtn.addEventListener('click', () => {
+                        const codeText = codeBlock.innerText;
+                        
+                        navigator.clipboard.writeText(codeText).then(() => {
+                            copyBtn.innerHTML = '✔ 已复制!';
+                            copyBtn.classList.add('copied');
+                            
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '📋 复制代码';
+                                copyBtn.classList.remove('copied');
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Copy failed:', err);
+                            copyBtn.innerHTML = '❌ 失败';
+                        });
+                    });
+                    
+                    header.appendChild(copyBtn);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
