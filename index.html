@@ -384,8 +384,68 @@
         }
 
         /* ══════════════════════════════════════
+           FRIENDLY LINKS
+           ══════════════════════════════════ */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .link-card {
+            background: var(--surface);
+            border: 1px solid var(--stone);
+            border-radius: var(--radius);
+            padding: 20px 22px 18px;
+            transition: all var(--transition);
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+        }
+        .link-card:hover {
+            border-color: rgba(242,103,34,.3);
+            box-shadow: var(--shadow-card);
+            transform: translateY(-2px);
+        }
+
+        .link-card__title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--ink-deep);
+            margin-bottom: 6px;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .link-card__title svg {
+            width: 16px;
+            height: 16px;
+            color: var(--steel);
+            flex-shrink: 0;
+        }
+
+        .link-card__desc {
+            font-size: 0.82rem;
+            color: var(--steel);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .link-card__url {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: rgba(242,103,34,.7);
+            word-break: break-all;
+            padding-top: 8px;
+            border-top: 1px solid var(--stone);
+        }
+
+        /* ══════════════════════════════════════
            FOOTER
-           ══════════════════════════════════════ */
+           ══════════════════════════════════ */
         .footer {
             background: var(--ink-deep);
             color: rgba(255,255,255,.45);
@@ -496,7 +556,7 @@
             <h1>湖南师范大学<br><em>机器人校队</em></h1>
             <p class="header__subtitle">学习资料中心 —— 从零开始，探索机器人世界</p>
             <div class="header__stats">
-                <span>4</span> 学习文档 · <span>4</span> 分类 · <span>1</span> 持续更新
+                <span>4</span> 学习文档 · <span>5</span> 分类 · <span>1</span> 持续更新
             </div>
         </div>
     </header>
@@ -508,6 +568,7 @@
         <a href="#linux" class="nav-link">Linux</a>
         <a href="#code" class="nav-link">编程基础</a>
         <a href="#ros" class="nav-link">ROS2</a>
+        <a href="#links" class="nav-link">友情链接</a>
     </nav>
 
     <!-- ═══ MAIN CONTENT ═══ -->
@@ -629,6 +690,64 @@
                     <div class="card-meta">
                         <span class="card-tag">安装</span>
                     </div>
+                </a>
+            </div>
+        </section>
+
+        <hr class="section-divider" aria-hidden="true">
+
+        <!-- 友情链接 -->
+        <section id="links">
+            <h2 class="section-title">友情链接</h2>
+            <div class="links-grid">
+                <a href="https://rcccaa.drct-caa.org.cn/article_info.php?id=77" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <h3 class="link-card__title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        中型仿真组比赛信息
+                    </h3>
+                    <p class="link-card__desc">关注中型仿真组比赛规则发布</p>
+                    <div class="link-card__url">rcccaa.drct-caa.org.cn</div>
+                </a>
+
+                <a href="https://rcccaa.drct-caa.org.cn/article_info.php?id=113" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <h3 class="link-card__title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        RoboCup赛事信息
+                    </h3>
+                    <p class="link-card__desc">明年可能有机会参加的比赛</p>
+                    <div class="link-card__url">rcccaa.drct-caa.org.cn</div>
+                </a>
+
+                <a href="https://github.com/nubot-nudt/simatch" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <h3 class="link-card__title">
+                        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        simatch (ROS1)
+                    </h3>
+                    <p class="link-card__desc">完整的ROS1版本中型仿真组仓库</p>
+                    <div class="link-card__url">github.com/nubot-nudt/simatch</div>
+                </a>
+
+                <a href="https://github.com/lvqi1013/Robocup_Mid_Sim" target="_blank" rel="noopener noreferrer" class="link-card">
+                    <h3 class="link-card__title">
+                        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        Robocup_Mid_Sim (ROS2)
+                    </h3>
+                    <p class="link-card__desc">ROS2版本中型仿真组仓库，正在升级中</p>
+                    <div class="link-card__url">github.com/lvqi1013/Robocup_Mid_Sim</div>
                 </a>
             </div>
         </section>
