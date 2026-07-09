@@ -1,0 +1,27 @@
+<svg width="520" height="520" viewBox="0 0 520 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="520" height="520" rx="64" fill="#101622"/>
+  <path d="M78 310C129 184 210 400 302 194C343 102 410 143 445 225" stroke="#9DFF62" stroke-width="10" stroke-linecap="round"/>
+  <path d="M88 190C148 246 187 108 260 176C326 238 370 162 434 124" stroke="#65B7FF" stroke-width="8" stroke-linecap="round" opacity=".78"/>
+  <g filter="url(#glow)">
+    <circle cx="146" cy="242" r="22" fill="#9DFF62"/>
+    <circle cx="300" cy="195" r="22" fill="#9DFF62"/>
+    <circle cx="404" cy="164" r="22" fill="#65B7FF"/>
+  </g>
+  <rect x="118" y="336" width="284" height="82" rx="24" fill="#F8F8EE"/>
+  <rect x="154" y="360" width="72" height="14" rx="7" fill="#101622"/>
+  <rect x="244" y="360" width="120" height="14" rx="7" fill="#101622" opacity=".32"/>
+  <rect x="154" y="388" width="190" height="14" rx="7" fill="#101622" opacity=".2"/>
+  <circle cx="260" cy="258" r="78" fill="#F8F8EE"/>
+  <circle cx="229" cy="246" r="11" fill="#101622"/>
+  <circle cx="291" cy="246" r="11" fill="#101622"/>
+  <path d="M231 284C251 302 274 302 294 284" stroke="#101622" stroke-width="8" stroke-linecap="round"/>
+  <path d="M260 180V137" stroke="#F8F8EE" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="260" cy="124" r="16" fill="#9DFF62"/>
+  <defs>
+    <filter id="glow" x="80" y="98" width="390" height="244" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
+      <feComposite in2="SourceAlpha" operator="over"/>
+    </filter>
+  </defs>
+</svg>

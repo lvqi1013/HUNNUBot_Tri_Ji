@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HNNU Robotics Promise Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;650;760;820&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="cursor-glow" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <a class="brand" href="#hero" aria-label="返回页面顶部">
+            <span class="brand-mark" aria-hidden="true">
+                <img src="assets/hnnu-emblem.png" alt="">
+            </span>
+            <span>HNNU Robotics</span>
+        </a>
+        <nav class="top-nav" aria-label="页面导航">
+            <a href="#docs">资料</a>
+            <a href="#protocol">训练协议</a>
+            <a href="#robocup">RoboCup</a>
+            <a href="#links">链接</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="hero">
+            <div class="orbit orbit-left" aria-hidden="true">
+                <div class="mini-window window-a">
+                    <span>SIM MATCH</span>
+                    <strong>ROS2</strong>
+                </div>
+                <div class="mini-window window-b">
+                    <span>WSL2</span>
+                    <strong>READY</strong>
+                </div>
+                <div class="node node-a"></div>
+                <div class="node node-b"></div>
+            </div>
+
+            <div class="hero-copy reveal">
+                <p class="eyebrow">Robotics learning protocol</p>
+                <h1>湖南师范大学<br>机器人校队</h1>
+                <p class="hero-text">
+                    从 WSL2、Linux、ROS2 到 RoboCup 中型仿真组，把零散资料整理成可执行、可复盘、可协作的训练入口。
+                </p>
+                <div class="hero-actions">
+                    <a class="primary-btn" href="#docs">进入资料库</a>
+                    <a class="ghost-btn" href="#robocup">查看竞赛方向</a>
+                </div>
+            </div>
+
+            <div class="hero-visual reveal" aria-label="训练状态面板">
+                <img class="robot-badge" src="assets/protocol-badge.svg" alt="">
+                <div class="status-card">
+                    <div class="status-top">
+                        <span>training.session</span>
+                        <span class="live-dot">online</span>
+                    </div>
+                    <div class="protocol-stack">
+                        <div><span>01</span><strong>Environment</strong><em>WSL2 / Ubuntu</em></div>
+                        <div><span>02</span><strong>Middleware</strong><em>ROS2 Jazzy</em></div>
+                        <div><span>03</span><strong>Simulation</strong><em>Mid Sim</em></div>
+                        <div><span>04</span><strong>Code</strong><em>C++ / Python</em></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="orbit orbit-right" aria-hidden="true">
+                <div class="ring"></div>
+                <div class="floating-chip chip-a">topic</div>
+                <div class="floating-chip chip-b">node</div>
+                <div class="floating-chip chip-c">world</div>
+            </div>
+        </section>
+
+        <section class="ticker" aria-label="重点方向">
+            <div class="ticker-track">
+                <div class="ticker-set">
+                    <span>RoboCup Mid Simulation</span>
+                    <span>ROS2 Migration</span>
+                    <span>Linux Foundation</span>
+                    <span>Team Training</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="docs" class="section">
+            <div class="section-heading reveal">
+                <p class="eyebrow">Learning library</p>
+                <h2>资料入口</h2>
+                <p>把原站已有教程保留下来，换成更像协议目录的阅读入口。</p>
+            </div>
+            <div class="resource-grid">
+                <a class="resource-card reveal" href="../docs/env/environment_configuration.html">
+                    <span class="card-index">01</span>
+                    <h3>WSL2 安装与配置</h3>
+                    <p>在 Windows 上建立 Linux 开发环境，完成校队训练的第一层基础设施。</p>
+                    <em>Environment</em>
+                </a>
+                <a class="resource-card reveal" href="../docs/env/ros2_configuration.html">
+                    <span class="card-index">02</span>
+                    <h3>ROS2 安装教程</h3>
+                    <p>围绕 Jazzy Jalisco 搭建机器人开发中间件，为仿真与实机开发做准备。</p>
+                    <em>Middleware</em>
+                </a>
+                <a class="resource-card reveal" href="../docs/Linux/linux_commands_tutorial.html">
+                    <span class="card-index">03</span>
+                    <h3>Linux 入门命令</h3>
+                    <p>掌握终端、文件、进程、网络等高频操作，降低后续调试成本。</p>
+                    <em>Terminal</em>
+                </a>
+                <a class="resource-card reveal" href="../docs/code/oop.html">
+                    <span class="card-index">04</span>
+                    <h3>面向对象编程</h3>
+                    <p>通过 C++ 与 Python 理解封装、继承等工程代码中的核心概念。</p>
+                    <em>Code</em>
+                </a>
+            </div>
+        </section>
+
+        <section id="protocol" class="section protocol-section">
+            <div class="section-heading reveal">
+                <p class="eyebrow">Training protocol</p>
+                <h2>训练流</h2>
+                <p>借鉴协议站点的“路径感”，把队员学习拆成连续阶段。</p>
+            </div>
+            <div class="timeline reveal">
+                <div class="timeline-line"></div>
+                <article>
+                    <span>Phase 1</span>
+                    <h3>环境就绪</h3>
+                    <p>完成 WSL2、Ubuntu、常用工具链安装，并能独立排查终端问题。</p>
+                </article>
+                <article>
+                    <span>Phase 2</span>
+                    <h3>ROS2 入门</h3>
+                    <p>理解 Node、Topic、Service、Action，能跑通基础 demo。</p>
+                </article>
+                <article>
+                    <span>Phase 3</span>
+                    <h3>仿真迁移</h3>
+                    <p>阅读 ROS1 中型仿真仓库，对照 ROS2 升级仓库完成模块认领。</p>
+                </article>
+                <article>
+                    <span>Phase 4</span>
+                    <h3>比赛协同</h3>
+                    <p>围绕策略、通信、决策、调试日志建立可复盘的训练节奏。</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="robocup" class="section split-section">
+            <div class="panel reveal">
+                <p class="eyebrow">RoboCup focus</p>
+                <h2>关注中型仿真组</h2>
+                <p>
+                    中型仿真组适合作为校队算法、协同策略和 ROS 迁移训练的共同目标。它有明确比赛规则，也能让新队员从环境搭建逐步进入工程协作。
+                </p>
+                <a class="primary-btn" href="https://rcccaa.drct-caa.org.cn/article_info.php?id=77" target="_blank" rel="noopener noreferrer">查看赛项介绍</a>
+            </div>
+            <div class="simulation-board reveal" aria-hidden="true">
+                <div class="field-grid"></div>
+                <span class="bot bot-1"></span>
+                <span class="bot bot-2"></span>
+                <span class="bot bot-3"></span>
+                <span class="ball"></span>
+                <svg viewBox="0 0 420 260" role="img" aria-label="仿真路径">
+                    <path d="M52 204 C122 72 210 238 318 88" />
+                    <path d="M108 62 C188 118 236 58 360 182" />
+                </svg>
+            </div>
+        </section>
+
+        <section id="links" class="section">
+            <div class="section-heading reveal">
+                <p class="eyebrow">External references</p>
+                <h2>友情链接</h2>
+                <p>把竞赛信息和仓库放在同一处，便于后续持续跟踪。</p>
+            </div>
+            <div class="link-grid">
+                <a class="link-card reveal" href="https://rcccaa.drct-caa.org.cn/article_info.php?id=77" target="_blank" rel="noopener noreferrer">
+                    <span>Official</span>
+                    <strong>中型仿真组介绍</strong>
+                    <em>关注赛项规则与平台信息</em>
+                </a>
+                <a class="link-card reveal" href="https://rcccaa.drct-caa.org.cn/article_info.php?id=113" target="_blank" rel="noopener noreferrer">
+                    <span>Notice</span>
+                    <strong>明年参赛机会</strong>
+                    <em>作为参赛时间规划参考</em>
+                </a>
+                <a class="link-card reveal" href="https://github.com/nubot-nudt/simatch" target="_blank" rel="noopener noreferrer">
+                    <span>ROS1</span>
+                    <strong>simatch 完整仓库</strong>
+                    <em>成熟中型仿真工程结构 ROS1</em>
+                </a>
+                <a class="link-card reveal" href="https://github.com/lvqi1013/Robocup_Mid_Sim" target="_blank" rel="noopener noreferrer">
+                    <span>ROS2</span>
+                    <strong>Robocup_Mid_Sim</strong>
+                    <em>正在升级中的 ROS2 版本</em>
+                </a>
+                <a class="link-card reveal" href="https://github.com/DDDDangbu/Distributed-Soccer-ROS" target="_blank" rel="noopener noreferrer">
+                    <span>Competition</span>
+                    <strong>Distributed-Soccer-ROS</strong>
+                    <em>校队去年比赛使用的代码仓库，可以适当参考，求求了给我个star</em>
+                </a>
+                <a class="link-card reveal" href="https://github.com/DDDDangbu/rl-panda-grasp" target="_blank" rel="noopener noreferrer">
+                    <span>RL</span>
+                    <strong>rl-panda-grasp</strong>
+                    <em>强化学习机械臂抓取项目，也请给我个star</em>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <span>HNNU Robotics</span>
+        <span>Promise-inspired edition</span>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
