@@ -4,255 +4,518 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>湖南师范大学机器人校队学习资料</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-        
+        /* ── Reset & Tokens ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-            --danger: #ef4444;
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --tag-text:    #3E4A5C;
+            --font-display:  "DM Serif Display", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+            --font-body:     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+            --font-mono:     "JetBrains Mono", "Cascadia Code", "Fira Code", "SF Mono", "Consolas", monospace;
+            --radius:        6px;
+            --shadow-card:   0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.06);
+            --shadow-card-hover: 0 8px 30px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+            --transition:    0.25s cubic-bezier(.4,0,.2,1);
         }
+
+        /* ── Base ── */
+        html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
-            line-height: 1.7;
-            color: var(--text-main);
-            background-color: var(--bg-main);
-            margin: 0;
-            padding: 0;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.65;
+            color: var(--ink-deep);
+            background: var(--paper);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
+        /* ── Accessible focus ── */
+        :focus-visible {
+            outline: 2px solid var(--signal);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        /* ── Reduced motion ── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ══════════════════════════════════════
+           HEADER — Circuit trace signature
+           ══════════════════════════════════════ */
         .header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            position: relative;
+            background: var(--ink-deep);
             color: white;
-            padding: 60px 40px;
+            padding: 100px 40px 90px;
             text-align: center;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        /* PCB trace pattern — faint circuit lines */
+        .header::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background:
+                /* horizontal traces */
+                linear-gradient(90deg, transparent 0%, rgba(255,255,255,.015) 1%, transparent 1.5%) 0 0 / 80px 80px,
+                /* vertical traces */
+                linear-gradient(0deg, transparent 0%, rgba(255,255,255,.01) 1%, transparent 1.5%) 0 0 / 80px 80px,
+                /* 45° diagonal — PCB routing characteristic */
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 39px,
+                    rgba(255,255,255,.012) 39px,
+                    rgba(255,255,255,.012) 41px,
+                    transparent 41px
+                ) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 70%);
+        }
+
+        /* Pulsing node — the "standby LED" */
+        .header__node {
+            position: absolute;
+            z-index: 1;
+            width: 6px;
+            height: 6px;
+            background: var(--signal);
+            border-radius: 50%;
+            top: 30%;
+            right: 15%;
+            box-shadow: 0 0 6px var(--signal), 0 0 14px var(--signal), 0 0 24px rgba(242,103,34,.35);
+            animation: node-breathe 3.5s ease-in-out infinite;
+        }
+        .header__node::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(242,103,34,.5), transparent);
+            transform: translateY(-50%);
+        }
+        .header__node::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 1px;
+            height: 28px;
+            background: linear-gradient(0deg, transparent, rgba(242,103,34,.35));
+            transform: translateX(-50%);
+        }
+
+        @keyframes node-breathe {
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 4px var(--signal), 0 0 10px var(--signal); }
+            50%      { opacity: 1;   box-shadow: 0 0 8px var(--signal), 0 0 20px var(--signal), 0 0 34px rgba(242,103,34,.4); }
+        }
+
+        .header__content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header__brand {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.45);
+            margin-bottom: 28px;
         }
 
         .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -0.025em;
+            font-family: var(--font-display);
+            font-size: clamp(2.4rem, 5vw, 3.6rem);
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            color: #FFFFFF;
+        }
+        .header h1 em {
+            font-style: italic;
+            color: var(--signal);
         }
 
-        .header p {
-            margin: 0;
-            font-size: 1.1rem;
-            opacity: 0.8;
+        .header__subtitle {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,.6);
+            font-weight: 400;
+            letter-spacing: 0.03em;
+            margin-bottom: 32px;
         }
 
+        .header__stats {
+            display: inline-flex;
+            gap: 28px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: rgba(255,255,255,.4);
+            letter-spacing: 0.06em;
+        }
+        .header__stats span {
+            color: rgba(255,255,255,.7);
+            font-weight: 600;
+        }
+
+        /* ══════════════════════════════════════
+           NAV — Understated typographic nav
+           ══════════════════════════════════════ */
         .nav-bar {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--stone);
+            padding: 0 40px;
             display: flex;
             justify-content: center;
-            gap: 24px;
-            flex-wrap: wrap;
+            gap: 4px;
         }
 
         .nav-link {
-            color: var(--text-muted);
-            text-decoration: none;
+            display: inline-block;
+            padding: 16px 20px 13px;
+            font-size: 0.88rem;
             font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
+            color: var(--steel);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+            border-bottom: 2px solid transparent;
+            transition: color var(--transition), border-color var(--transition);
+            position: relative;
+            top: 1px;
         }
-
         .nav-link:hover {
-            background-color: var(--primary-light);
-            color: var(--primary);
+            color: var(--ink-deep);
         }
-
         .nav-link.active {
-            background-color: var(--primary);
-            color: white;
+            color: var(--signal);
+            border-bottom-color: var(--signal);
+            font-weight: 600;
         }
 
+        /* ══════════════════════════════════════
+           CONTAINER
+           ══════════════════════════════════════ */
         .container {
-            max-width: 1200px;
+            max-width: 1120px;
             margin: 0 auto;
-            padding: 40px;
+            padding: 56px 40px 64px;
         }
 
+        /* ══════════════════════════════════════
+           SECTION HEADINGS
+           ══════════════════════════════════════ */
         .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: var(--ink-deep);
+            margin-bottom: 32px;
+            padding-left: 16px;
+            border-left: 3px solid var(--signal);
+            letter-spacing: 0.03em;
+            line-height: 1.3;
         }
 
+        /* ══════════════════════════════════════
+           STATS ROW — Subtle, integrated
+           ══════════════════════════════════════ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            margin-bottom: 64px;
+            background: var(--stone);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .stat-card {
+            background: var(--surface);
+            padding: 28px 24px 24px;
+            text-align: center;
+        }
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.8rem;
+            font-weight: 400;
+            color: var(--signal);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--steel);
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        /* ══════════════════════════════════════
+           CARD GRID
+           ══════════════════════════════════════ */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
         }
 
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border: 1px solid var(--stone);
+            border-radius: var(--radius);
+            padding: 28px 28px 24px;
             text-decoration: none;
             color: inherit;
+            transition: all var(--transition);
+            position: relative;
         }
-
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: var(--radius);
+            border: 2px solid transparent;
+            transition: border-color var(--transition);
+            pointer-events: none;
+            z-index: 1;
+        }
         .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-card-hover);
+        }
+        .card:hover::before {
+            border-color: rgba(242,103,34,.25);
         }
 
         .card-icon {
             font-size: 2rem;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            line-height: 1;
+            filter: grayscale(0.15);
+            transition: filter var(--transition);
+        }
+        .card:hover .card-icon {
+            filter: grayscale(0);
         }
 
         .card-title {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #0f172a;
-            margin: 0 0 8px 0;
+            font-size: 1.05rem;
+            font-weight: 650;
+            color: var(--ink-deep);
+            margin-bottom: 8px;
+            letter-spacing: 0.01em;
+            line-height: 1.4;
         }
 
         .card-desc {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            margin: 0;
-            line-height: 1.6;
+            font-size: 0.9rem;
+            color: var(--steel);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            flex: 1;
         }
 
         .card-meta {
             display: flex;
-            gap: 12px;
-            margin-top: 16px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .card-tag {
-            background-color: var(--primary-light);
-            color: var(--primary);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
             font-weight: 500;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 3px 10px;
+            border-radius: 3px;
+            letter-spacing: 0.03em;
         }
 
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+        /* ══════════════════════════════════════
+           SECTION SPACING
+           ══════════════════════════════════════ */
+        section + section {
+            margin-top: 64px;
         }
 
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
+        section:first-of-type {
+            margin-top: 0;
         }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 0 0 4px 0;
+        /* ── Divider between sections ── */
+        .section-divider {
+            border: none;
+            height: 1px;
+            background: var(--stone);
+            margin: 64px 0 0 0;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
+        /* ══════════════════════════════════════
+           FOOTER
+           ══════════════════════════════════════ */
         .footer {
-            background-color: #0f172a;
-            color: white;
-            padding: 30px;
+            background: var(--ink-deep);
+            color: rgba(255,255,255,.45);
+            padding: 36px 40px;
             text-align: center;
-            margin-top: 60px;
+            font-size: 0.82rem;
+            letter-spacing: 0.04em;
         }
-
         .footer p {
             margin: 0;
-            opacity: 0.7;
-            font-size: 0.9rem;
+        }
+        .footer__accent {
+            display: inline-block;
+            width: 18px;
+            height: 1px;
+            background: rgba(242,103,34,.5);
+            vertical-align: middle;
+            margin: 0 10px;
         }
 
+        /* ══════════════════════════════════════
+           RESPONSIVE
+           ══════════════════════════════════════ */
         @media (max-width: 768px) {
+            .header {
+                padding: 64px 24px 56px;
+            }
             .header h1 {
                 font-size: 2rem;
             }
-            .header {
-                padding: 40px 20px;
+            .header__subtitle {
+                font-size: 0.95rem;
             }
-            .container {
-                padding: 24px 16px;
+            .header__stats {
+                gap: 16px;
+                font-size: 0.72rem;
             }
+            .header__node {
+                right: 8%;
+                top: 20%;
+            }
+
             .nav-bar {
-                gap: 12px;
-                padding: 12px 16px;
+                padding: 0 16px;
+                gap: 0;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                justify-content: flex-start;
             }
+            .nav-link {
+                padding: 14px 14px 10px;
+                font-size: 0.82rem;
+                white-space: nowrap;
+            }
+
+            .container {
+                padding: 40px 20px 48px;
+            }
+
+            .section-title {
+                font-size: 1.35rem;
+                padding-left: 12px;
+                margin-bottom: 24px;
+            }
+
             .card-grid {
                 grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1px;
+                margin-bottom: 48px;
+            }
+            .stat-card {
+                padding: 20px 12px 18px;
+            }
+            .stat-number {
+                font-size: 2.2rem;
+            }
+            .stat-label {
+                font-size: 0.78rem;
+            }
+
+            .footer {
+                padding: 28px 20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            .header {
+                padding: 48px 18px 40px;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>🤖 湖南师范大学机器人校队</h1>
-        <p>学习资料中心 —— 从零开始，探索机器人世界</p>
-    </div>
+    <!-- ═══ HEADER ═══ -->
+    <header class="header">
+        <div class="header__node" aria-hidden="true"></div>
+        <div class="header__content">
+            <div class="header__brand">HNNU · Robotics</div>
+            <h1>湖南师范大学<br><em>机器人校队</em></h1>
+            <p class="header__subtitle">学习资料中心 —— 从零开始，探索机器人世界</p>
+            <div class="header__stats">
+                <span>4</span> 学习文档 · <span>4</span> 分类 · <span>1</span> 持续更新
+            </div>
+        </div>
+    </header>
 
-    <div class="nav-bar">
+    <!-- ═══ NAV ═══ -->
+    <nav class="nav-bar" aria-label="分类导航">
         <a href="#all" class="nav-link active">全部</a>
         <a href="#environment" class="nav-link">环境配置</a>
         <a href="#linux" class="nav-link">Linux</a>
         <a href="#code" class="nav-link">编程基础</a>
         <a href="#ros" class="nav-link">ROS2</a>
-    </div>
+    </nav>
 
-    <div class="container">
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-number">4</div>
-                <div class="stat-label">学习文档</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">4</div>
-                <div class="stat-label">分类</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">1</div>
-                <div class="stat-label">持续更新</div>
-            </div>
-        </div>
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="container">
 
-        <div id="all">
-            <h2 class="section-title">📚 全部文档</h2>
+        <!-- 全部文档 -->
+        <section id="all">
+            <h2 class="section-title">全部文档</h2>
             <div class="card-grid">
                 <a href="docs/env/environment_configuration.html" class="card">
                     <div class="card-icon">💻</div>
@@ -291,10 +554,13 @@
                     </div>
                 </a>
             </div>
-        </div>
+        </section>
 
-        <div id="environment">
-            <h2 class="section-title">⚙️ 环境配置</h2>
+        <hr class="section-divider" aria-hidden="true">
+
+        <!-- 环境配置 -->
+        <section id="environment">
+            <h2 class="section-title">环境配置</h2>
             <div class="card-grid">
                 <a href="docs/env/environment_configuration.html" class="card">
                     <div class="card-icon">💻</div>
@@ -314,10 +580,13 @@
                     </div>
                 </a>
             </div>
-        </div>
+        </section>
 
-        <div id="linux">
-            <h2 class="section-title">🐧 Linux</h2>
+        <hr class="section-divider" aria-hidden="true">
+
+        <!-- Linux -->
+        <section id="linux">
+            <h2 class="section-title">Linux</h2>
             <div class="card-grid">
                 <a href="docs/Linux/linux_commands_tutorial.html" class="card">
                     <div class="card-icon">🐧</div>
@@ -328,10 +597,13 @@
                     </div>
                 </a>
             </div>
-        </div>
+        </section>
 
-        <div id="code">
-            <h2 class="section-title">💡 编程基础</h2>
+        <hr class="section-divider" aria-hidden="true">
+
+        <!-- 编程基础 -->
+        <section id="code">
+            <h2 class="section-title">编程基础</h2>
             <div class="card-grid">
                 <a href="docs/code/oop.html" class="card">
                     <div class="card-icon">🏗️</div>
@@ -342,10 +614,13 @@
                     </div>
                 </a>
             </div>
-        </div>
+        </section>
 
-        <div id="ros">
-            <h2 class="section-title">🌿 ROS2</h2>
+        <hr class="section-divider" aria-hidden="true">
+
+        <!-- ROS2 -->
+        <section id="ros">
+            <h2 class="section-title">ROS2</h2>
             <div class="card-grid">
                 <a href="docs/env/ros2_configuration.html" class="card">
                     <div class="card-icon">🌿</div>
@@ -356,32 +631,63 @@
                     </div>
                 </a>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <div class="footer">
-        <p>© 湖南师范大学机器人校队. 保留所有权利.</p>
-    </div>
+    </main>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer">
+        <p><span class="footer__accent" aria-hidden="true"></span>© 湖南师范大学机器人校队. 保留所有权利.<span class="footer__accent" aria-hidden="true"></span></p>
+    </footer>
 
     <script>
+        /* ── Smooth scroll navigation with active state tracking ── */
         document.addEventListener('DOMContentLoaded', () => {
             const navLinks = document.querySelectorAll('.nav-link');
-            
+            const sections = [...navLinks].map(link =>
+                document.querySelector(link.getAttribute('href'))
+            ).filter(Boolean);
+
+            /* Click: scroll to section */
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                    
-                    const targetId = link.getAttribute('href');
-                    const targetSection = document.querySelector(targetId);
-                    
-                    if (targetSection) {
-                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const target = document.querySelector(link.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 });
             });
+
+            /* Scroll: update active nav based on scroll position */
+            const updateActive = () => {
+                const navHeight = document.querySelector('.nav-bar')?.offsetHeight || 56;
+                let currentId = null;
+
+                for (const section of sections) {
+                    const top = section.getBoundingClientRect().top;
+                    if (top <= navHeight + 80) {
+                        currentId = section.id;
+                    }
+                }
+
+                navLinks.forEach(link => {
+                    const href = link.getAttribute('href').substring(1);
+                    link.classList.toggle('active', href === currentId);
+                });
+
+                /* If scrolled past last section, deactivate all except last */
+                if (currentId === null || window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 60) {
+                    const lastSection = sections[sections.length - 1];
+                    navLinks.forEach(link => {
+                        const href = link.getAttribute('href').substring(1);
+                        link.classList.toggle('active', href === lastSection?.id);
+                    });
+                }
+            };
+
+            window.addEventListener('scroll', updateActive, { passive: true });
+            updateActive();
         });
     </script>
 </body>

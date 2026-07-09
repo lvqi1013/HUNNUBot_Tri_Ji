@@ -4,443 +4,179 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>面向对象编程入门：封装与继承</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-        
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --code-bg: #0f172a;
-            --code-text: #e2e8f0;
-            --output-bg: #f1f5f9;
-            --output-text: #334155;
-            --border: #e2e8f0;
-            --warning-bg: #fff1f2;
-            --warning-border: #fecdd3;
-            --warning-text: #9f1239;
-            --success: #10b981;
-            --info-bg: #eff6ff;
-            --info-border: #bfdbfe;
-            --info-text: #1e40af;
-            --highlight-bg: #fef3c7;
-            --highlight-border: #fde68a;
-            --highlight-text: #92400e;
-            --blue-card: #e0f2fe;
-            --green-card: #dcfce7;
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --code-bg:     #14161E;
+            --code-text:   #D6D9E0;
+            --code-header: #1E2130;
+            --code-muted:  #6B7280;
+            --info-bg:     #F5F3F0;
+            --info-border: #E3DED6;
+            --info-text:   #3E4A5C;
+            --highlight-bg:#FFF9ED;
+            --highlight-border:#FDE0B2;
+            --highlight-text:#8A4B0F;
+            --success:     #10B981;
+            --blue-card:   #F0F4F8;
+            --green-card:  #F2F7F3;
+            --font-display: "DM Serif Display", "Noto Serif CJK SC", serif;
+            --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-mono:    "JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+            --radius:       6px;
+            --transition:   0.25s cubic-bezier(.4,0,.2,1);
         }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
-            line-height: 1.7;
-            color: var(--text-main);
-            background-color: var(--bg-main);
-            margin: 0;
-            padding: 0;
+            font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+            color: var(--ink-deep); background: var(--paper); -webkit-font-smoothing: antialiased;
         }
 
+        :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ── Sidebar ── */
         .sidebar {
-            position: fixed;
-            width: 280px;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            background: var(--bg-card);
-            border-right: 1px solid var(--border);
-            padding: 30px 20px;
-            overflow-y: auto;
-            z-index: 100;
+            position: fixed; width: 270px; height: 100vh; left: 0; top: 0;
+            background: var(--ink-deep); color: rgba(255,255,255,.85);
+            padding: 32px 22px; overflow-y: auto; z-index: 100;
+            border-right: 1px solid rgba(255,255,255,.06);
         }
-
-        .main-content {
-            margin-left: 280px;
-            padding: 40px 60px;
-            max-width: 1100px;
-        }
-
         .sidebar-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+            color: #fff; margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
         }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-item {
-            margin-bottom: 8px;
-        }
-
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-item { margin-bottom: 4px; }
         .sidebar-link {
-            display: block;
-            padding: 8px 12px;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 0.925rem;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: block; padding: 7px 12px; color: rgba(255,255,255,.55);
+            text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+            transition: all var(--transition); border-left: 2px solid transparent;
         }
+        .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; border-left-color: rgba(255,255,255,.2); }
+        .sidebar-link[href="../../index.html"] { color: var(--signal); font-weight: 600; margin-bottom: 8px; }
+        .sidebar-link[href="../../index.html"]:hover { background: rgba(242,103,34,.12); border-left-color: var(--signal); }
 
-        .sidebar-link:hover {
-            background-color: var(--primary-light);
-            color: var(--primary);
-            font-weight: 500;
-        }
+        /* ── Main Content ── */
+        .main-content { margin-left: 270px; padding: 48px 56px 64px; max-width: 1060px; }
 
+        /* ── Header Banner ── */
         .header-banner {
-            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 40px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            background: var(--ink-deep); color: white; padding: 44px 40px;
+            border-radius: var(--radius); margin-bottom: 40px; position: relative; overflow: hidden;
         }
+        .header-banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,.01) 39px, rgba(255,255,255,.01) 41px, transparent 41px) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+        }
+        .header-banner h1 { position: relative; font-family: var(--font-display); font-size: 2rem; font-weight: 400; letter-spacing: 0.03em; margin-bottom: 8px; }
+        .header-banner p { position: relative; font-size: 1rem; opacity: 0.6; font-weight: 400; }
 
-        .header-banner h1 {
-            margin: 0 0 10px 0;
-            font-size: 2.2rem;
-            font-weight: 800;
-            letter-spacing: -0.025em;
-        }
+        /* ── Sections ── */
+        section { background: var(--surface); padding: 32px 36px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--stone); }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--ink-deep); margin: 0 0 20px 0; padding-left: 14px; border-left: 3px solid var(--signal); letter-spacing: 0.02em; line-height: 1.3; }
+        h3 { font-size: 1.08rem; font-weight: 650; color: var(--ink-deep); margin: 24px 0 10px; letter-spacing: 0.01em; }
+        h4 { font-size: 0.95rem; font-weight: 650; color: var(--steel); margin: 18px 0 8px; }
+        p { margin: 0 0 14px; color: var(--steel); }
+        ul, ol { margin: 12px 0; padding-left: 24px; }
+        ul li, ol li { margin-bottom: 6px; color: var(--steel); }
 
-        .header-banner p {
-            margin: 0;
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
+        /* ── Inline Code ── */
+        code:not(pre code) { font-family: var(--font-mono); background: var(--tag-bg); color: #C2410C; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: 500; }
 
-        section {
-            background: var(--bg-card);
-            padding: 32px;
-            border-radius: 12px;
-            margin-bottom: 28px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
+        /* ── Code Blocks ── */
+        .code-wrapper { margin: 16px 0; border-radius: var(--radius); overflow: hidden; }
+        .code-header { background: var(--code-header); color: var(--code-muted); padding: 6px 16px; font-size: 0.7rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.7); padding: 2px 10px; border-radius: 3px; font-size: 0.68rem; cursor: pointer; transition: all var(--transition); font-family: var(--font-body); }
+        .copy-btn:hover { background: rgba(242,103,34,.25); border-color: var(--signal); color: var(--signal); }
+        .copy-btn.copied { background: var(--success); border-color: var(--success); color: #fff; }
+        pre { margin: 0; padding: 16px 18px; background: var(--code-bg); color: var(--code-text); font-family: var(--font-mono); font-size: 0.88rem; overflow-x: auto; line-height: 1.65; }
 
-        h2 {
-            font-size: 1.4rem;
-            color: #0f172a;
-            margin-top: 0;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-        }
+        /* ── Alert Boxes ── */
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .info-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+        .highlight-box { background: var(--highlight-bg); border: 1px solid var(--highlight-border); color: var(--highlight-text); padding: 12px 16px; border-radius: var(--radius); margin: 16px 0; font-weight: 500; font-size: 0.92rem; }
 
-        h3 {
-            font-size: 1.15rem;
-            color: #1e293b;
-            margin-top: 24px;
-            margin-bottom: 12px;
-        }
-
-        h4 {
-            font-size: 1rem;
-            color: #334155;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-
-        p {
-            margin-top: 0;
-            margin-bottom: 16px;
-            color: #334155;
-            font-size: 1rem;
-        }
-
-        .code-wrapper {
-            margin: 16px 0;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-            position: relative;
-        }
-
-        .code-header {
-            background-color: #1e293b;
-            color: #94a3b8;
-            padding: 6px 16px;
-            font-size: 0.75rem;
-            font-family: monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid #334155;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .copy-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #e2e8f0;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-
-        .copy-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .copy-btn.copied {
-            background-color: var(--success);
-            border-color: var(--success);
-            color: white;
-        }
-
-        pre {
-            margin: 0;
-            padding: 16px;
-            background-color: var(--code-bg);
-            color: var(--code-text);
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Monaco, Courier, monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            line-height: 1.6;
-        }
-
-        code:not(pre code) {
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-            background-color: #f1f5f9;
-            color: #b91c1c;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .danger-box {
-            background-color: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            color: var(--warning-text);
-            padding: 16px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        .danger-box strong {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 1.05rem;
-        }
-
-        .info-box {
-            background-color: var(--info-bg);
-            border: 1px solid var(--info-border);
-            color: var(--info-text);
-            padding: 16px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .info-box strong {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 1.05rem;
-        }
-
-        .highlight-box {
-            background-color: var(--highlight-bg);
-            border: 1px solid var(--highlight-border);
-            color: var(--highlight-text);
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin: 16px 0;
-            font-weight: 500;
-        }
-
+        /* ── Concept Box (OOP-specific) ── */
         .concept-box {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border: 1px solid #bfdbfe;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(135deg, #F7F5F1 0%, #EFECE6 100%); border: 1px solid var(--stone);
+            border-radius: var(--radius); padding: 24px; margin: 20px 0; position: relative; overflow: hidden;
         }
-
         .concept-box::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 100px;
-            height: 100px;
-            background: rgba(37, 99, 235, 0.05);
-            border-radius: 50%;
+            content: ''; position: absolute; top: -40px; right: -40px; width: 80px; height: 80px;
+            background: rgba(242,103,34,.04); border-radius: 50%;
         }
+        .concept-box h4 { color: #8A4B0F; margin-top: 0; font-size: 1.05rem; }
 
-        .concept-box h4 {
-            color: #1e40af;
-            margin-top: 0;
-            font-size: 1.1rem;
-        }
-
+        /* ── Life Analogy ── */
         .life-analogy {
-            background-color: #f0fdf4;
-            border-left: 4px solid #22c55e;
-            padding: 16px 20px;
-            border-radius: 0 8px 8px 0;
-            margin: 16px 0;
-            color: #166534;
+            background: #F5F3F0; border-left: 3px solid var(--signal);
+            padding: 16px 20px; border-radius: 0 var(--radius) var(--radius) 0; margin: 16px 0; color: #3E4A5C;
         }
+        .life-analogy strong { font-size: 1.02rem; }
 
-        .life-analogy strong {
-            font-size: 1.05rem;
+        /* ── Tables ── */
+        .table-container { overflow-x: auto; margin: 20px 0; border: 1px solid var(--stone); border-radius: var(--radius); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+        th { background: var(--paper); color: var(--steel); font-weight: 600; padding: 12px 16px; border-bottom: 2px solid var(--stone); }
+        td { padding: 10px 16px; border-bottom: 1px solid var(--stone); color: var(--steel); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--paper); }
+
+        /* ── ASCII Art / Diagram ── */
+        .ascii-art, .diagram-tree {
+            background: var(--paper); border: 1px solid var(--stone); border-radius: var(--radius);
+            padding: 16px 18px; font-family: var(--font-mono); font-size: 0.82rem;
+            color: var(--steel); white-space: pre-wrap; margin: 16px 0; overflow-x: auto; line-height: 1.5;
         }
+        .diagram-tree { text-align: center; }
 
-        .table-container {
-            overflow-x: auto;
-            margin: 20px 0;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
+        /* ── Feature Cards ── */
+        .feature-card { display: flex; gap: 16px; padding: 20px; border-radius: var(--radius); margin: 16px 0; }
+        .feature-card.blue { background: var(--blue-card); border: 1px solid #D0DDE8; }
+        .feature-card.green { background: var(--green-card); border: 1px solid #C5DCCA; }
+        .feature-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .feature-content h4 { margin-top: 0; margin-bottom: 6px; }
+        .feature-content p { margin-bottom: 0; font-size: 0.95rem; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.95rem;
-        }
-
-        th {
-            background-color: #f8fafc;
-            color: #475569;
-            font-weight: 600;
-            padding: 14px 16px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            color: #334155;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background-color: #f8fafc;
-        }
-
-        .ascii-art {
-            background-color: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 16px;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-            font-size: 0.85rem;
-            color: #475569;
-            white-space: pre-wrap;
-            margin: 16px 0;
-            overflow-x: auto;
-        }
-
-        .diagram-tree {
-            background-color: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-            font-size: 0.9rem;
-            color: #475569;
-            white-space: pre-wrap;
-            margin: 16px 0;
-            text-align: center;
-        }
-
-        .feature-card {
-            display: flex;
-            gap: 16px;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 16px 0;
-        }
-
-        .feature-card.blue {
-            background-color: var(--blue-card);
-            border: 1px solid #7dd3fc;
-        }
-
-        .feature-card.green {
-            background-color: var(--green-card);
-            border: 1px solid #86efac;
-        }
-
-        .feature-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .feature-content h4 {
-            margin-top: 0;
-            margin-bottom: 6px;
-        }
-
-        .feature-content p {
-            margin-bottom: 0;
-            font-size: 0.95rem;
-        }
-
+        /* ── Responsive ── */
         @media (max-width: 992px) {
-            .sidebar {
-                position: relative;
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                padding: 20px;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 24px 16px;
-            }
-            .header-banner {
-                padding: 30px 20px;
-            }
-            .header-banner h1 {
-                font-size: 1.8rem;
-            }
-            .feature-card {
-                flex-direction: column;
-            }
+            .sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); padding: 20px; }
+            .main-content { margin-left: 0; padding: 28px 18px; }
+            .header-banner { padding: 28px 22px; border-radius: 0; }
+            .header-banner h1 { font-size: 1.5rem; }
+            section { padding: 24px 18px; }
+            .feature-card { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="sidebar-title">🧭 教程目录</div>
+        <div class="sidebar-title">教程目录</div>
         <ul class="sidebar-menu">
-            <li class="sidebar-item"><a class="sidebar-link" href="../../index.html">🏠 返回首页</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="../../index.html">← 返回首页</a></li>
             <li class="sidebar-item"><a class="sidebar-link" href="#sec-1">一、两个核心概念</a></li>
             <li class="sidebar-item"><a class="sidebar-link" href="#sec-1-1">封装：把东西"打包"起来</a></li>
             <li class="sidebar-item"><a class="sidebar-link" href="#sec-1-2">继承：在已有基础上"扩展"</a></li>
@@ -456,23 +192,22 @@
             <p>封装与继承 —— OOP 的两大基石</p>
         </div>
 
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;">
+        <p style="color: var(--steel); font-size: 0.95rem; margin-bottom: 30px;">
             面向对象编程（OOP）是现代软件开发的核心思想。本文通过生活类比和代码示例，深入浅出地讲解封装与继承两个核心概念。
         </p>
 
         <section id="sec-1">
             <h2>一、两个核心概念</h2>
-            
+
             <section id="sec-1-1">
                 <h3>封装：把东西"打包"起来</h3>
                 <p>封装就是<strong>把数据和对数据的操作绑在一起，并隐藏内部细节</strong>。</p>
-                
+
                 <div class="life-analogy">
                     <strong>🎯 生活类比：</strong>你用手机拍照，只需要点"拍照"按钮，不需要知道镜头如何对焦、传感器如何工作。手机把复杂细节<strong>封装</strong>了。
                 </div>
 
-                <div class="ascii-art">
-┌─────────────────────┐
+                <div class="ascii-art">┌─────────────────────┐
 │       银行账户        │
 │                     │
 │  💰 余额 (私有)      │  ← 外部不能直接修改
@@ -480,8 +215,7 @@
 │  ✅ deposit()       │  ← 只能通过公开方法操作
 │  ✅ withdraw()      │
 │  ✅ get_balance()   │
-└─────────────────────┘
-                </div>
+└─────────────────────┘</div>
 
                 <div class="feature-card blue">
                     <div class="feature-icon">🔒</div>
@@ -495,19 +229,17 @@
             <section id="sec-1-2">
                 <h3>继承：在已有基础上"扩展"</h3>
                 <p>继承就是<strong>子类自动拥有父类的属性和方法，还能添加新功能或修改行为</strong>。</p>
-                
+
                 <div class="life-analogy">
                     <strong>🎯 生活类比：</strong>"狗"是一种"动物"。动物会吃、会睡，狗除了这些还会汪汪叫。狗<strong>继承</strong>了动物的特征，并增加了自己的特点。
                 </div>
 
-                <div class="diagram-tree">
-     动物 (Animal)
-    /  吃()  睡()
-         │
-      狗 (Dog)          ← 自动拥有 吃()、睡()
-    + 汪汪叫()          ← 新增功能
-    + 睡() [改成蜷着睡]  ← 覆盖/修改行为
-                </div>
+                <div class="diagram-tree"> 动物 (Animal)
+/  吃()  睡()
+     │
+  狗 (Dog)          ← 自动拥有 吃()、睡()
++ 汪汪叫()          ← 新增功能
++ 睡() [改成蜷着睡]  ← 覆盖/修改行为</div>
 
                 <div class="feature-card green">
                     <div class="feature-icon">🐕</div>
@@ -521,10 +253,8 @@
 
         <section id="sec-2">
             <h2>二、C++ 简单实现</h2>
-            <div class="code-wrapper">
-                <div class="code-header"><span>cpp</span></div>
-                <pre><code>#include <iostream>
-#include <string>
+            <div class="code-wrapper"><div class="code-header"><span>cpp</span></div><pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
 using namespace std;
 
 // ====== 封装示例 ======
@@ -536,11 +266,11 @@ public:                     // 🔓 公开：对外提供的接口
     BankAccount(double initial) : balance(initial) {}
 
     void deposit(double amount) {
-        if (amount > 0) balance += amount;
+        if (amount &gt; 0) balance += amount;
     }
 
     bool withdraw(double amount) {
-        if (amount > 0 && amount <= balance) {
+        if (amount &gt; 0 &amp;&amp; amount &lt;= balance) {
             balance -= amount;
             return true;
         }
@@ -556,8 +286,8 @@ protected:                  // 子类可访问，外部不可
     string name;
 public:
     Animal(string n) : name(n) {}
-    void eat() { cout << name << " is eating.\n"; }
-    virtual void speak() { cout << name << " makes a sound.\n"; }
+    void eat() { cout &lt;&lt; name &lt;&lt; " is eating.\n"; }
+    virtual void speak() { cout &lt;&lt; name &lt;&lt; " makes a sound.\n"; }
 };
 
 class Dog : public Animal { // 🐕 Dog 继承 Animal
@@ -565,11 +295,11 @@ public:
     Dog(string n) : Animal(n) {}
 
     void speak() override { // 覆盖父类方法
-        cout << name << " says: Woof!\n";
+        cout &lt;&lt; name &lt;&lt; " says: Woof!\n";
     }
 
     void fetch() {          // 新增方法
-        cout << name << " fetches the ball!\n";
+        cout &lt;&lt; name &lt;&lt; " fetches the ball!\n";
     }
 };
 
@@ -578,7 +308,7 @@ int main() {
     BankAccount acc(100);
     acc.deposit(50);
     acc.withdraw(30);
-    cout << "Balance: " << acc.getBalance() << "\n"; // 120
+    cout &lt;&lt; "Balance: " &lt;&lt; acc.getBalance() &lt;&lt; "\n"; // 120
     // acc.balance = 999999;  ❌ 编译错误！私有成员不可访问
 
     // 继承：Dog 拥有 Animal 的能力 + 自己的能力
@@ -586,30 +316,27 @@ int main() {
     dog.eat();    // 继承自 Animal
     dog.speak();  // Dog 自己的版本
     dog.fetch();  // Dog 新增的
-}</code></pre>
-            </div>
+}</code></pre></div>
         </section>
 
         <section id="sec-3">
             <h2>三、Python 简单实现</h2>
-            <div class="code-wrapper">
-                <div class="code-header"><span>python</span></div>
-                <pre><code># ====== 封装示例 ======
+            <div class="code-wrapper"><div class="code-header"><span>python</span></div><pre><code># ====== 封装示例 ======
 class BankAccount:
     def __init__(self, initial: float):
         self.__balance = initial      # 🔒 双下划线 = 私有
 
     def deposit(self, amount: float):
-        if amount > 0:
+        if amount &gt; 0:
             self.__balance += amount
 
-    def withdraw(self, amount: float) -> bool:
-        if 0 < amount <= self.__balance:
+    def withdraw(self, amount: float) -&gt; bool:
+        if 0 &lt; amount &lt;= self.__balance:
             self.__balance -= amount
             return True
         return False
 
-    def get_balance(self) -> float:
+    def get_balance(self) -&gt; float:
         return self.__balance
 
 
@@ -645,21 +372,14 @@ if __name__ == "__main__":
     dog = Dog("Rex")
     dog.eat()     # 继承自 Animal
     dog.speak()   # Dog 自己的版本
-    dog.fetch()   # Dog 新增的</code></pre>
-            </div>
+    dog.fetch()   # Dog 新增的</code></pre></div>
         </section>
 
         <section id="sec-4">
             <h2>四、一张表记住区别</h2>
             <div class="table-container">
                 <table>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>封装</th>
-                            <th>继承</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th></th><th>封装</th><th>继承</th></tr></thead>
                     <tbody>
                         <tr><td><strong>一句话</strong></td><td>藏起细节，暴露接口</td><td>复用父类，扩展子类</td></tr>
                         <tr><td><strong>关系</strong></td><td>"有一个"（内部结构）</td><td>"是一个"（类型层次）</td></tr>
@@ -672,7 +392,7 @@ if __name__ == "__main__":
         </section>
 
         <section>
-            <h2>🎉 恭喜完成！</h2>
+            <h2>恭喜完成！</h2>
             <p>你已经掌握了面向对象编程的两个核心概念：</p>
             <ul>
                 <li><strong>封装</strong>：保护数据，控制访问，实现安全的代码</li>
@@ -684,34 +404,18 @@ if __name__ == "__main__":
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const codeWrappers = document.querySelectorAll('.code-wrapper');
-            
-            codeWrappers.forEach(wrapper => {
+            document.querySelectorAll('.code-wrapper').forEach(wrapper => {
                 const header = wrapper.querySelector('.code-header');
                 const codeBlock = wrapper.querySelector('pre code');
-                
                 if (header && codeBlock) {
                     const copyBtn = document.createElement('button');
-                    copyBtn.className = 'copy-btn';
-                    copyBtn.innerHTML = '📋 复制代码';
-                    
+                    copyBtn.className = 'copy-btn'; copyBtn.innerHTML = '复制';
                     copyBtn.addEventListener('click', () => {
-                        const codeText = codeBlock.innerText;
-                        
-                        navigator.clipboard.writeText(codeText).then(() => {
-                            copyBtn.innerHTML = '✔ 已复制!';
-                            copyBtn.classList.add('copied');
-                            
-                            setTimeout(() => {
-                                copyBtn.innerHTML = '📋 复制代码';
-                                copyBtn.classList.remove('copied');
-                            }, 2000);
-                        }).catch(err => {
-                            console.error('Copy failed:', err);
-                            copyBtn.innerHTML = '❌ 失败';
-                        });
+                        navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                            copyBtn.innerHTML = '已复制'; copyBtn.classList.add('copied');
+                            setTimeout(() => { copyBtn.innerHTML = '复制'; copyBtn.classList.remove('copied'); }, 2000);
+                        }).catch(() => { copyBtn.innerHTML = '失败'; });
                     });
-                    
                     header.appendChild(copyBtn);
                 }
             });
