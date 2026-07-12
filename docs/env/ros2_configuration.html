@@ -244,7 +244,7 @@
                 <h4>1. 检查操作系统版本</h4>
                 <p>首先，确保你的系统版本是 Ubuntu 24.04。可以使用以下命令检查：</p>
                 <div class="code-wrapper"><div class="code-header"><span>bash</span></div><pre><code>lsb_release -a</code></pre></div>
-                <img src="https://i-blog.csdnimg.cn/img_convert/6a8c0f97c22e5eca630675099f5c9908.png" alt="检查操作系统版本">
+                <img src="pics/ros2_configuration/01_check_os_version.png" alt="检查操作系统版本">
                 <p>如果返回的版本不是 Ubuntu 24.04，建议先升级或安装合适的操作系统版本。</p>
 
                 <h4>2. 设置 UTF-8 支持</h4>
@@ -260,7 +260,7 @@ export LANG=en_US.UTF-8
 
 # 检查当前语言设置
 locale</code></pre></div>
-                <img src="https://i-blog.csdnimg.cn/img_convert/30bc150235ced7250227e44d4a5a630e.png" alt="UTF-8 设置">
+                <img src="pics/ros2_configuration/02_utf8_setting.png" alt="UTF-8 设置">
                 <div class="info-box"><strong>💡 重要提示：</strong><p>以上操作必须在同一个终端中执行，并且接下来的操作也必须在这个终端中执行。</p></div>
 
                 <h4>3. 启用 Universe 存储库</h4>
@@ -268,7 +268,7 @@ locale</code></pre></div>
                 <div class="code-wrapper"><div class="code-header"><span>bash</span></div><pre><code>sudo apt install software-properties-common
 sudo add-apt-repository universe</code></pre></div>
                 <div class="highlight-box">⚠️ 注意执行过程需要<strong>手动按一次回车</strong>确认。</div>
-                <img src="https://i-blog.csdnimg.cn/img_convert/88a1024dca4ab5b904317fbb0fe6d295.png" alt="启用 Universe 存储库">
+                <img src="pics/ros2_configuration/03_enable_universe_repo.png" alt="启用 Universe 存储库">
             </section>
 
             <section id="sec-2-3">
@@ -310,7 +310,7 @@ sudo apt install ros-jazzy-desktop-full -y</code></pre></div>
 
                 <h4>常见问题与解决方案</h4>
                 <div class="danger-box"><strong>❌ 错误信息：</strong><p>E: Unable to locate package ros-jazzy-desktop</p></div>
-                <img src="https://i-blog.csdnimg.cn/img_convert/d53d4cd57a288ba778056a3ada38d506.png" alt="安装错误">
+                <img src="pics/ros2_configuration/04_install_error.png" alt="安装错误">
                 <p><strong>根本原因：</strong></p>
                 <blockquote><ol><li>未正确添加 ROS 官方软件源或 GPG 密钥。</li><li>添加软件源后未执行 <code>sudo apt update</code> 来刷新本地软件包索引。</li><li>网络问题导致无法访问 ROS 官方源。</li></ol></blockquote>
                 <p><strong>解决方案：</strong></p>
@@ -340,7 +340,7 @@ ros2 run demo_nodes_py talker
 # 终端 2: 运行 listener
 ros2 run demo_nodes_py listener</code></pre></div>
                 <div class="info-box"><strong>💡 提示：</strong><p>在打开第二个终端运行时如果提示 ros2 找不到，就再运行一下 <code>source ~/.bashrc</code></p></div>
-                <img src="https://i-blog.csdnimg.cn/img_convert/11c2b1a62aa34201416ff5b39ca1b66d.png" alt="talker-listener 示例">
+                <img src="pics/ros2_configuration/05_talker_listener_example.png" alt="talker-listener 示例">
 
                 <h4>3. 运行小海龟仿真</h4>
                 <div class="code-wrapper"><div class="code-header"><span>bash</span></div><pre><code># 终端 1: 启动仿真
@@ -349,7 +349,7 @@ ros2 run turtlesim turtlesim_node
 # 终端 2: 启动键盘控制
 ros2 run turtlesim turtle_teleop_key</code></pre></div>
                 <div class="highlight-box">⚠️ 注意：用键盘控制小海龟移动，需要把鼠标先点一下<strong>启动键盘控制</strong>的 terminal 窗口（相当于选定），然后才能实现控制。</div>
-                <img src="https://i-blog.csdnimg.cn/img_convert/0ec2baa71a440dcc84fb8edd8c377bd9.png" alt="小海龟仿真">
+                <img src="pics/ros2_configuration/06_turtlesim_demo.png" alt="小海龟仿真">
                 <p>如果以上步骤都能正常运行，说明安装成功！🎉</p>
             </section>
 
