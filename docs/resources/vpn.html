@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPN 推荐与邀请码</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --code-bg:     #14161E;
+            --code-text:   #D6D9E0;
+            --code-header: #1E2130;
+            --code-muted:  #6B7280;
+            --info-bg:     #F5F3F0;
+            --info-border: #E3DED6;
+            --info-text:   #3E4A5C;
+            --highlight-bg:#FFF9ED;
+            --highlight-border:#FDE0B2;
+            --highlight-text:#8A4B0F;
+            --success:     #10B981;
+            --font-display: "DM Serif Display", "Noto Serif CJK SC", serif;
+            --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-mono:    "JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+            --radius:       6px;
+            --transition:   0.25s cubic-bezier(.4,0,.2,1);
+        }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+        body {
+            font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+            color: var(--ink-deep); background: var(--paper); -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed; width: 270px; height: 100vh; left: 0; top: 0;
+            background: var(--ink-deep); color: rgba(255,255,255,.85);
+            padding: 32px 22px; overflow-y: auto; z-index: 100;
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+        .sidebar-title {
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+            color: #fff; margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
+        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-item { margin-bottom: 4px; }
+        .sidebar-link {
+            display: block; padding: 7px 12px; color: rgba(255,255,255,.55);
+            text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+            transition: all var(--transition); border-left: 2px solid transparent;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; border-left-color: rgba(255,255,255,.2); }
+        .sidebar-link[href="../../promis/index.html"] { color: var(--signal); font-weight: 600; margin-bottom: 8px; }
+        .sidebar-link[href="../../promis/index.html"]:hover { background: rgba(242,103,34,.12); border-left-color: var(--signal); }
+
+        /* ── Main Content ── */
+        .main-content { margin-left: 270px; padding: 48px 56px 64px; max-width: 1060px; }
+
+        /* ── Header Banner ── */
+        .header-banner {
+            background: var(--ink-deep); color: white; padding: 44px 40px;
+            border-radius: var(--radius); margin-bottom: 40px; position: relative; overflow: hidden;
+        }
+        .header-banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,.01) 39px, rgba(255,255,255,.01) 41px, transparent 41px) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+        }
+        .header-banner h1 { position: relative; font-family: var(--font-display); font-size: 2rem; font-weight: 400; letter-spacing: 0.03em; margin-bottom: 8px; }
+        .header-banner p { position: relative; font-size: 1rem; opacity: 0.6; font-weight: 400; }
+
+        /* ── Sections ── */
+        section { background: var(--surface); padding: 32px 36px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--stone); }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--ink-deep); margin: 0 0 20px 0; padding-left: 14px; border-left: 3px solid var(--signal); letter-spacing: 0.02em; line-height: 1.3; }
+        h3 { font-size: 1.05rem; font-weight: 650; color: var(--ink-deep); margin: 24px 0 10px; letter-spacing: 0.01em; }
+        p { margin: 0 0 14px; color: var(--steel); }
+        ul, ol { margin: 12px 0; padding-left: 24px; }
+        ul li, ol li { margin-bottom: 6px; color: var(--steel); }
+
+        /* ── Inline Code ── */
+        code:not(pre code) { font-family: var(--font-mono); background: var(--tag-bg); color: #C2410C; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: 500; }
+
+        /* ── Alert Boxes ── */
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .info-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+        .highlight-box { background: var(--highlight-bg); border: 1px solid var(--highlight-border); color: var(--highlight-text); padding: 12px 16px; border-radius: var(--radius); margin: 16px 0; font-weight: 500; font-size: 0.92rem; }
+
+        /* ── Invite Card ── */
+        .invite-card {
+            background: linear-gradient(135deg, #F7F5F1 0%, #EFECE6 100%);
+            border: 1px solid var(--stone); border-radius: var(--radius);
+            padding: 24px; margin: 20px 0; position: relative;
+        }
+        .invite-card:hover { border-color: var(--signal); }
+        .invite-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .invite-name { font-size: 1.15rem; font-weight: 650; color: var(--ink-deep); }
+        .invite-badge {
+            background: var(--signal); color: #fff; padding: 4px 12px;
+            border-radius: 4px; font-size: 0.75rem; font-weight: 600;
+        }
+        .invite-link-wrapper {
+            background: var(--code-bg); border-radius: var(--radius);
+            padding: 12px 16px; display: flex; align-items: center;
+            justify-content: space-between; gap: 12px;
+        }
+        .invite-link {
+            font-family: var(--font-mono); color: var(--code-text);
+            font-size: 0.88rem; word-break: break-all; flex: 1;
+        }
+        .copy-btn {
+            background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+            color: rgba(255,255,255,.7); padding: 6px 14px; border-radius: 4px;
+            font-size: 0.8rem; cursor: pointer; transition: all var(--transition);
+            font-family: var(--font-body); white-space: nowrap;
+        }
+        .copy-btn:hover { background: rgba(242,103,34,.25); border-color: var(--signal); color: var(--signal); }
+        .copy-btn.copied { background: var(--success); border-color: var(--success); color: #fff; }
+
+        /* ── Responsive ── */
+        @media (max-width: 992px) {
+            .sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); padding: 20px; }
+            .main-content { margin-left: 0; padding: 28px 18px; }
+            .header-banner { padding: 28px 22px; border-radius: 0; }
+            .header-banner h1 { font-size: 1.5rem; }
+            section { padding: 24px 18px; }
+            .invite-link-wrapper { flex-direction: column; }
+            .copy-btn { width: 100%; text-align: center; }
+        }
+    </style>
+    <link rel="stylesheet" href="../../assets/rig-inspired.css">
+    <link rel="stylesheet" href="../../assets/promise-docs.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-title">教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../promis/index.html">← 返回资料主页</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-1">一、VPN 简介</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2">二、推荐服务商</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-3">三、邀请码领取</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header-banner">
+            <h1>VPN 推荐与邀请码</h1>
+            <p>校队成员专享邀请链接，访问国外技术资源更便捷</p>
+        </div>
+
+        <p style="color: var(--steel); font-size: 0.95rem; margin-bottom: 30px;">
+            在机器人开发和学习过程中，经常需要访问 GitHub、ROS 官方文档等国外资源。本文提供校队成员专享的 VPN 服务邀请码，帮助大家更顺畅地获取技术资料。
+        </p>
+
+        <section id="sec-1">
+            <h2>一、VPN 简介</h2>
+            <p>VPN（Virtual Private Network）即虚拟专用网络，可以帮助用户安全地访问互联网资源。对于开发者来说，VPN 的主要用途包括：</p>
+            <ul>
+                <li><strong>访问 GitHub：</strong>下载开源项目代码、查看技术文档</li>
+                <li><strong>访问 ROS 官方资源：</strong>安装 ROS2 软件包、查阅官方教程</li>
+                <li><strong>查阅论文：</strong>获取最新的学术研究成果</li>
+                <li><strong>观看教程视频：</strong>学习国外优质的编程和机器人教程</li>
+            </ul>
+            <div class="info-box">
+                <strong>💡 提示：</strong>
+                <p>选择 VPN 服务时，请关注服务的稳定性、速度和安全性，选择信誉良好的服务商。</p>
+            </div>
+        </section>
+
+        <section id="sec-2">
+            <h2>二、推荐服务商</h2>
+            <p>我们推荐 <strong>SakuraCat</strong> VPN 服务，它具有以下特点：</p>
+            <ul>
+                <li>节点覆盖多个国家和地区</li>
+                <li>支持多种协议（SS、VMess 等）</li>
+                <li>提供稳定的连接速度</li>
+                <li>友好的客户端界面</li>
+            </ul>
+            <div class="highlight-box">
+                ⚠️ 请通过下方邀请码注册，可以获得校队成员专享的优惠和服务支持。
+            </div>
+        </section>
+
+        <section id="sec-3">
+            <h2>三、邀请码领取</h2>
+            <p>以下为校队成员提供的专享邀请链接，点击即可注册并享受优惠：</p>
+
+            <!-- Invite Card 1 -->
+            <div class="invite-card">
+                <div class="invite-header">
+                    <span class="invite-name">吕麒 - 专属邀请码</span>
+                    <span class="invite-badge">校队成员</span>
+                </div>
+                <div class="invite-link-wrapper">
+                    <code class="invite-link">https://114514-sakuracat.com/register?code=WZFfk8HO</code>
+                    <button class="copy-btn" onclick="copyLink(this, 'https://114514-sakuracat.com/register?code=WZFfk8HO')">复制链接</button>
+                </div>
+            </div>
+
+            <!-- Invite Card 2 -->
+            <div class="invite-card">
+                <div class="invite-header">
+                    <span class="invite-name">查宇航 - 专属邀请码</span>
+                    <span class="invite-badge">校队成员</span>
+                </div>
+                <div class="invite-link-wrapper">
+                    <code class="invite-link">https://1-sakuracat.com/register?code=Cnp8MMca</code>
+                    <button class="copy-btn" onclick="copyLink(this, 'https://1-sakuracat.com/register?code=Cnp8MMca')">复制链接</button>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>📋 使用说明：</strong>
+                <p>1. 点击"复制链接"按钮复制邀请链接</p>
+                <p>2. 在浏览器中打开链接，完成注册</p>
+                <p>3. 根据服务商指引下载客户端并配置</p>
+                <p>4. 开始享受稳定的网络访问服务</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>注意事项</h2>
+            <ul>
+                <li>请遵守相关法律法规，合理使用 VPN 服务</li>
+                <li>VPN 仅用于学习和科研目的，请勿用于其他非法用途</li>
+                <li>如遇到连接问题，请联系相关服务提供商客服</li>
+                <li>邀请链接仅供校队成员使用，请勿外传</li>
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        function copyLink(btn, link) {
+            navigator.clipboard.writeText(link).then(() => {
+                btn.innerHTML = '已复制';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '复制链接';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                btn.innerHTML = '复制失败';
+            });
+        }
+    </script>
+</body>
+</html>
