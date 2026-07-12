@@ -168,6 +168,29 @@
         }
         .video-link:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(242,103,34,.35); }
 
+        /* ── Navigation Links ── */
+        .nav-links {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 40px; padding: 20px 0; border-top: 1px solid var(--stone);
+        }
+        .nav-links a {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; border-radius: var(--radius);
+            text-decoration: none; font-size: 0.95rem; font-weight: 500;
+            transition: all var(--transition);
+        }
+        .nav-prev {
+            background: var(--paper); color: var(--steel); border: 1px solid var(--stone);
+        }
+        .nav-prev:hover { background: var(--stone); color: var(--ink-deep); }
+        .nav-next {
+            background: var(--signal); color: #fff; border: 1px solid var(--signal);
+        }
+        .nav-next:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(242,103,34,.3); }
+        .nav-disabled { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
+        .nav-prev .arrow { font-size: 1.1rem; }
+        .nav-next .arrow { font-size: 1.1rem; }
+
         /* ── Responsive ── */
         @media (max-width: 992px) {
             .sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); padding: 20px; }
@@ -175,6 +198,7 @@
             .header-banner { padding: 28px 22px; border-radius: 0; }
             .header-banner h1 { font-size: 1.5rem; }
             section { padding: 24px 18px; }
+            .nav-links { flex-direction: column; gap: 12px; }
         }
     </style>
     <link rel="stylesheet" href="../../assets/rig-inspired.css">
@@ -370,6 +394,18 @@ wsl -d Ubuntu-22.04</code></pre></div>
                 <li>学习使用 Docker Desktop</li>
             </ul>
         </section>
+
+        <!-- Navigation Links -->
+        <div class="nav-links">
+            <a class="nav-prev nav-disabled" href="#">
+                <span class="arrow">←</span>
+                <span>上一篇：无</span>
+            </a>
+            <a class="nav-next" href="../Linux/linux_commands_tutorial.html">
+                <span>下一篇：Linux 入门命令</span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
     </div>
 
     <script>
