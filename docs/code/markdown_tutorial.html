@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 语法教程</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --code-bg:     #14161E;
+            --code-text:   #D6D9E0;
+            --code-header: #1E2130;
+            --code-muted:  #6B7280;
+            --danger-bg:   #FDF2F2;
+            --danger-border:#FBC4C4;
+            --danger-text:  #9B1C1C;
+            --info-bg:     #F5F3F0;
+            --info-border: #E3DED6;
+            --info-text:   #3E4A5C;
+            --success:     #10B981;
+            --font-display: "DM Serif Display", "Noto Serif CJK SC", serif;
+            --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-mono:    "JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+            --radius:       6px;
+            --transition:   0.25s cubic-bezier(.4,0,.2,1);
+        }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+        body {
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--ink-deep);
+            background: var(--paper);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed; width: 270px; height: 100vh; left: 0; top: 0;
+            background: var(--ink-deep); color: rgba(255,255,255,.85);
+            padding: 32px 22px; overflow-y: auto; z-index: 100;
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+        .sidebar-title {
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+            color: #fff; margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
+        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-item { margin-bottom: 4px; }
+        .sidebar-link {
+            display: block; padding: 7px 12px; color: rgba(255,255,255,.55);
+            text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+            transition: all var(--transition); border-left: 2px solid transparent;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; border-left-color: rgba(255,255,255,.2); }
+        .sidebar-link[href="../../promis/index.html"] { color: var(--signal); font-weight: 600; margin-bottom: 8px; }
+        .sidebar-link[href="../../promis/index.html"]:hover { background: rgba(242,103,34,.12); border-left-color: var(--signal); }
+
+        /* ── Main Content ── */
+        .main-content { margin-left: 270px; padding: 48px 56px 64px; max-width: 1060px; }
+
+        /* ── Header Banner ── */
+        .header-banner {
+            background: var(--ink-deep); color: white; padding: 44px 40px;
+            border-radius: var(--radius); margin-bottom: 40px; position: relative; overflow: hidden;
+        }
+        .header-banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,.01) 39px, rgba(255,255,255,.01) 41px, transparent 41px) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+        }
+        .header-banner h1 {
+            position: relative; font-family: var(--font-display); font-size: 2rem; font-weight: 400;
+            letter-spacing: 0.03em; margin-bottom: 8px;
+        }
+        .header-banner p { position: relative; font-size: 1rem; opacity: 0.6; font-weight: 400; }
+        .author-info { position: relative; font-size: 0.9rem; opacity: 0.8; margin-top: 12px; }
+
+        /* ── Sections ── */
+        section {
+            background: var(--surface); padding: 32px 36px; border-radius: var(--radius);
+            margin-bottom: 24px; border: 1px solid var(--stone);
+        }
+        h2 {
+            font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--ink-deep);
+            margin: 0 0 20px 0; padding-left: 14px; border-left: 3px solid var(--signal);
+            letter-spacing: 0.02em; line-height: 1.3;
+        }
+        h3 { font-size: 1.05rem; font-weight: 650; color: var(--ink-deep); margin: 24px 0 10px; letter-spacing: 0.01em; }
+        h4 { font-size: 0.95rem; font-weight: 650; color: var(--steel); margin: 18px 0 8px; }
+        p { margin: 0 0 14px; color: var(--steel); }
+        ul, ol { margin: 12px 0; padding-left: 24px; }
+        ul li, ol li { margin-bottom: 6px; color: var(--steel); }
+
+        /* ── Inline Code ── */
+        code:not(pre code) {
+            font-family: var(--font-mono); background: var(--tag-bg); color: #C2410C;
+            padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: 500;
+        }
+
+        /* ── Code Blocks ── */
+        .code-wrapper { margin: 16px 0; border-radius: var(--radius); overflow: hidden; }
+        .code-header {
+            background: var(--code-header); color: var(--code-muted); padding: 6px 16px;
+            font-size: 0.7rem; font-family: var(--font-mono); text-transform: uppercase;
+            letter-spacing: 0.06em; display: flex; justify-content: space-between; align-items: center;
+        }
+        .copy-btn {
+            background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+            color: rgba(255,255,255,.7); padding: 2px 10px; border-radius: 3px; font-size: 0.68rem;
+            cursor: pointer; transition: all var(--transition); font-family: var(--font-body);
+        }
+        .copy-btn:hover { background: rgba(242,103,34,.25); border-color: var(--signal); color: var(--signal); }
+        .copy-btn.copied { background: var(--success); border-color: var(--success); color: #fff; }
+        pre {
+            margin: 0; padding: 16px 18px; background: var(--code-bg); color: var(--code-text);
+            font-family: var(--font-mono); font-size: 0.88rem; overflow-x: auto; line-height: 1.65;
+        }
+
+        /* ── Alert Boxes ── */
+        .danger-box {
+            background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-text);
+            padding: 16px 20px; border-radius: var(--radius); margin: 20px 0;
+        }
+        .danger-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+        .info-box {
+            background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text);
+            padding: 16px 20px; border-radius: var(--radius); margin: 20px 0;
+        }
+        .info-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+
+        /* ── Tables ── */
+        .table-container { overflow-x: auto; margin: 20px 0; border: 1px solid var(--stone); border-radius: var(--radius); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+        th { background: var(--paper); color: var(--steel); font-weight: 600; padding: 12px 16px; border-bottom: 2px solid var(--stone); }
+        td { padding: 10px 16px; border-bottom: 1px solid var(--stone); color: var(--steel); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--paper); }
+
+        /* ── Example Box ── */
+        .example-box {
+            background: #fafafa; border-left: 4px solid var(--signal);
+            padding: 16px 20px; margin: 20px 0; border-radius: 0 var(--radius) var(--radius) 0;
+        }
+        .example-box .example-title {
+            font-weight: 600; color: var(--ink-deep); margin-bottom: 12px; font-size: 0.95rem;
+        }
+        .example-content {
+            background: var(--code-bg); color: var(--code-text);
+            padding: 12px 16px; border-radius: var(--radius); font-family: var(--font-mono);
+            font-size: 0.88rem; overflow-x: auto;
+        }
+
+        /* ── Navigation Links ── */
+        .nav-links {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 40px; padding: 20px 0; border-top: 1px solid var(--stone);
+        }
+        .nav-links a {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; border-radius: var(--radius);
+            text-decoration: none; font-size: 0.95rem; font-weight: 500;
+            transition: all var(--transition);
+        }
+        .nav-prev {
+            background: var(--paper); color: var(--steel); border: 1px solid var(--stone);
+        }
+        .nav-prev:hover { background: var(--stone); color: var(--ink-deep); }
+        .nav-next {
+            background: var(--signal); color: #fff; border: 1px solid var(--signal);
+        }
+        .nav-next:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(242,103,34,.3); }
+        .nav-disabled { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
+        .nav-prev .arrow { font-size: 1.1rem; }
+        .nav-next .arrow { font-size: 1.1rem; }
+
+        /* ── Checkbox Styling ── */
+        .task-list-item {
+            list-style-type: none;
+            margin-left: -24px;
+        }
+        .task-list-item input[type="checkbox"] {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 992px) {
+            .sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); padding: 20px; }
+            .main-content { margin-left: 0; padding: 28px 18px; }
+            .header-banner { padding: 28px 22px; border-radius: 0; }
+            .header-banner h1 { font-size: 1.5rem; }
+            section { padding: 24px 18px; }
+            .nav-links { flex-direction: column; gap: 12px; }
+        }
+    </style>
+    <link rel="stylesheet" href="../../assets/rig-inspired.css">
+    <link rel="stylesheet" href="../../assets/promise-docs.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-title">📝 目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../promis/index.html">← 返回资料主页</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-1">一、什么是 Markdown</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2">二、标题</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-3">三、段落与换行</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-4">四、强调（字体样式）</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-5">五、列表</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-6">六、引用</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-7">七、代码块</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-8">八、链接与图片</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-9">九、表格</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-10">十、分割线</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-11">十一、任务列表</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-12">十二、脚注</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-13">十三、高级技巧</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header-banner">
+            <h1>Markdown 语法教程</h1>
+            <p>轻量级标记语言，让写作更简单优雅</p>
+            <div class="author-info">作者：尹肇兴</div>
+        </div>
+
+        <p style="color: var(--steel); font-size: 0.95rem; margin-bottom: 30px;">
+            Markdown 是一种轻量级标记语言，由 John Gruber 于 2004 年创建。它的设计初衷是让人们能够用易读易写的纯文本格式编写文档，然后转换成结构化的 HTML。本教程将系统介绍 Markdown 的核心语法，帮助你快速掌握这一高效写作工具。
+        </p>
+
+        <section id="sec-1">
+            <h2>一、什么是 Markdown</h2>
+            <p>Markdown 具有以下特点：</p>
+            <ul>
+                <li><strong>简洁易学：</strong>语法简单直观，几分钟即可上手</li>
+                <li><strong>跨平台：</strong>纯文本格式，任何文本编辑器都可以打开和编辑</li>
+                <li><strong>广泛支持：</strong>GitHub、GitLab、CSDN、知乎、简书等平台都支持 Markdown</li>
+                <li><strong>可扩展：</strong>支持 HTML 标签，可以实现更复杂的排版效果</li>
+                <li><strong>版本友好：</strong>纯文本格式，非常适合版本控制系统（如 Git）</li>
+            </ul>
+            <div class="info-box">
+                <strong>💡 学习建议：</strong>
+                <p>Markdown 的核心语法非常简单，建议边学边练。你可以使用 Typora、VS Code（配合 Markdown Preview Enhanced 插件）或在线编辑器（如 StackEdit、Dillinger）来实时预览效果。</p>
+            </div>
+        </section>
+
+        <section id="sec-2">
+            <h2>二、标题</h2>
+            <p>Markdown 支持 6 级标题，使用 <code>#</code> 符号标记：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code># 一级标题
+## 二级标题
+### 三级标题
+#### 四级标题
+##### 五级标题
+###### 六级标题</code></pre>
+            </div>
+            <div class="example-box">
+                <div class="example-title">渲染效果：</div>
+                <h1 style="font-size: 2em; margin: 16px 0; border-bottom: 1px solid var(--stone); padding-bottom: 8px;">一级标题</h1>
+                <h2 style="font-size: 1.5em; margin: 14px 0;">二级标题</h2>
+                <h3 style="font-size: 1.25em; margin: 12px 0;">三级标题</h3>
+                <h4 style="font-size: 1em; margin: 10px 0;">四级标题</h4>
+                <h5 style="font-size: 0.875em; margin: 8px 0;">五级标题</h5>
+                <h6 style="font-size: 0.85em; margin: 6px 0; color: var(--steel);">六级标题</h6>
+            </div>
+            <div class="info-box">
+                <strong>💡 提示：</strong>
+                <p><code>#</code> 与标题文本之间必须有一个空格。为了代码的可读性，建议在标题前后各留一行空行。</p>
+            </div>
+
+            <h3>另一种标题语法</h3>
+            <p>还可以使用底线形式表示一级和二级标题：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>一级标题
+=========
+
+二级标题
+---------</code></pre>
+            </div>
+        </section>
+
+        <section id="sec-3">
+            <h2>三、段落与换行</h2>
+            <p>在 Markdown 中，段落由一个或多个连续的文本行组成，段落之间用一个或多个空行分隔。</p>
+
+            <h3>段落</h3>
+            <p>只需在段落之间留出空行即可：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>这是第一个段落。
+
+这是第二个段落。</code></pre>
+            </div>
+
+            <h3>换行</h3>
+            <p>在同一段落内换行，有两种方式：</p>
+            <ul>
+                <li>在行尾添加两个或更多空格，然后按回车</li>
+                <li>使用 HTML 标签 <code>&lt;br&gt;</code></li>
+            </ul>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>第一行文本（后面有两个空格）
+第二行文本
+
+使用 HTML 换行标签：<br>新的一行</code></pre>
+            </div>
+        </section>
+
+        <section id="sec-4">
+            <h2>四、强调（字体样式）</h2>
+            <p>Markdown 提供了多种文本强调方式：</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>效果</th>
+                            <th>语法</th>
+                            <th>快捷键（部分编辑器）</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><em>斜体</em></td>
+                            <td><code>*文本*</code> 或 <code>_文本_</code></td>
+                            <td>Ctrl + I</td>
+                        </tr>
+                        <tr>
+                            <td><strong>粗体</strong></td>
+                            <td><code>**文本**</code> 或 <code>__文本__</code></td>
+                            <td>Ctrl + B</td>
+                        </tr>
+                        <tr>
+                            <td><strong><em>粗斜体</em></strong></td>
+                            <td><code>***文本***</code> 或 <code>___文本___</code></td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><del>删除线</del></td>
+                            <td><code>~~文本~~</code></td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><u>下划线</u></td>
+                            <td><code>&lt;u&gt;文本&lt;/u&gt;</code>（HTML 标签）</td>
+                            <td>Ctrl + U</td>
+                        </tr>
+                        <tr>
+                            <td><mark>高亮</mark></td>
+                            <td><code>==文本==</code>（部分编辑器支持）</td>
+                            <td>—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="example-box">
+                <div class="example-title">综合示例：</div>
+                <div class="example-content">这是**粗体**文本，这是*斜体*文本，这是***粗斜体***文本。
+
+这是~~删除线~~文本，这是<u>下划线</u>文本，这是==高亮==文本。</div>
+            </div>
+        </section>
+
+        <section id="sec-5">
+            <h2>五、列表</h2>
+            <p>Markdown 支持有序列表、无序列表和嵌套列表。</p>
+
+            <h3>（1）无序列表</h3>
+            <p>使用 <code>-</code>、<code>*</code> 或 <code>+</code> 作为列表标记：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>- 第一项
+- 第二项
+- 第三项
+
+* 第一项
+* 第二项
+
++ 第一项
++ 第二项</code></pre>
+            </div>
+            <div class="info-box">
+                <strong>💡 提示：</strong>
+                <p>建议在同一个文档中统一使用一种标记符号，保持风格一致。推荐使用 <code>-</code> 作为无序列表标记。</p>
+            </div>
+
+            <h3>（2）有序列表</h3>
+            <p>使用数字加英文句点：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>1. 第一项
+2. 第二项
+3. 第三项</code></pre>
+            </div>
+            <div class="info-box">
+                <strong>💡 自动编号：</strong>
+                <p>列表标记的数字不会影响渲染结果。下面的代码会渲染成与上面相同的有序列表：</p>
+            </div>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>1. 第一项
+1. 第二项
+1. 第三项</code></pre>
+            </div>
+
+            <h3>（3）列表嵌套</h3>
+            <p>在子列表前添加 4 个空格或 1 个制表符（Tab）：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>1. 第一项
+    - 子项 A
+    - 子项 B
+2. 第二项
+    - 子项 C
+        - 子子项 C1
+        - 子子项 C2</code></pre>
+            </div>
+
+            <h3>（4）列表项包含段落</h3>
+            <p>如果要在列表项中包含段落，需要在段落前添加缩进：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>1.  第一项
+
+    第一项的补充说明段落。
+
+2.  第二项</code></pre>
+            </div>
+        </section>
+
+        <section id="sec-6">
+            <h2>六、引用</h2>
+            <p>使用 <code>&gt;</code> 符号创建引用块：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>> 这是一段引用文本
+> 可以写得很长很长
+
+> 也可以是多层嵌套引用
+>> 第二层引用
+>>> 第三层引用</code></pre>
+            </div>
+
+            <h3>引用中包含其他元素</h3>
+            <p>引用块中可以包含 Markdown 其他元素：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>> #### 引用中的标题
+>
+> 1. 有序列表项一
+> 2. 有序列表项二
+>
+> 这里是**粗体**和*斜体*示例</code></pre>
+            </div>
+        </section>
+
+        <section id="sec-7">
+            <h2>七、代码块</h2>
+            <p>Markdown 提供了两种代码格式：行内代码和代码块。</p>
+
+            <h3>（1）行内代码</h3>
+            <p>使用反引号包裹代码：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>这是行内代码示例：`print("Hello World")`</code></pre>
+            </div>
+
+            <h3>（2）代码块</h3>
+            <p>使用三个反引号包裹代码块，并可指定语言以获得语法高亮：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>```python
+def hello():
+    print("Hello World")
+
+hello()
+```</code></pre>
+            </div>
+
+            <h3>（3）支持的语言</h3>
+            <p>常见支持语法高亮的语言包括：</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>语言</th>
+                            <th>标记</th>
+                            <th>语言</th>
+                            <th>标记</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Python</td>
+                            <td><code>python</code></td>
+                            <td>JavaScript</td>
+                            <td><code>javascript</code></td>
+                        </tr>
+                        <tr>
+                            <td>C/C++</td>
+                            <td><code>c</code> / <code>cpp</code></td>
+                            <td>Java</td>
+                            <td><code>java</code></td>
+                        </tr>
+                        <tr>
+                            <td>HTML</td>
+                            <td><code>html</code></td>
+                            <td>CSS</td>
+                            <td><code>css</code></td>
+                        </tr>
+                        <tr>
+                            <td>Bash/Shell</td>
+                            <td><code>bash</code> / <code>shell</code></td>
+                            <td>JSON</td>
+                            <td><code>json</code></td>
+                        </tr>
+                        <tr>
+                            <td>SQL</td>
+                            <td><code>sql</code></td>
+                            <td>YAML</td>
+                            <td><code>yaml</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>（4）缩进式代码块</h3>
+            <p>另一种创建代码块的方式是使用 4 个空格或 1 个制表符缩进：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>    def hello():
+        print("Hello World")</code></pre>
+            </div>
+            <div class="info-box">
+                <strong>💡 推荐：</strong>
+                <p>推荐使用三个反引号的方式，因为它支持语法高亮和语言标记，可读性更好。</p>
+            </div>
+        </section>
+
+        <section id="sec-8">
+            <h2>八、链接与图片</h2>
+
+            <h3>（1）超链接</h3>
+            <p>基本语法：<code>[链接文本](URL)</code></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>[GitHub](https://github.com)
+[百度搜索](https://www.baidu.com)</code></pre>
+            </div>
+
+            <h4>带标题的链接</h4>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>[GitHub](https://github.com "GitHub 官网")</code></pre>
+            </div>
+
+            <h4>引用式链接</h4>
+            <p>将 URL 定义在文档其他位置，使正文更简洁：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>这是一个 [GitHub][1] 链接示例。
+
+[1]: https://github.com "GitHub 官网"</code></pre>
+            </div>
+
+            <h4>自动链接</h4>
+            <p>使用尖括号自动转换为链接：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>&lt;https://github.com&gt;
+&lt;example@email.com&gt;</code></pre>
+            </div>
+
+            <h3>（2）图片</h3>
+            <p>基本语法：<code>![替代文本](图片URL)</code></p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>![示例图片](https://example.com/image.png)</code></pre>
+            </div>
+
+            <h4>带标题的图片</h4>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>![示例图片](https://example.com/image.png "图片标题")</code></pre>
+            </div>
+
+            <h4>引用式图片</h4>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>![示例图片][image-ref]
+
+[image-ref]: https://example.com/image.png "图片标题"</code></pre>
+            </div>
+
+            <h4>图片尺寸控制</h4>
+            <p>Markdown 本身不支持直接调整图片尺寸，需要使用 HTML 标签：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>html</span></div>
+                <pre><code>&lt;img src="https://example.com/image.png" width="300" height="200" alt="示例图片"&gt;</code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 图床推荐：</strong>
+                <p>使用图床服务可以方便地管理和引用图片。常用的图床服务包括：GitHub、Gitee、阿里云 OSS、腾讯云 COS、七牛云等。文中提到的蜜蜂图床（beeimg.cn）也是一个选择。</p>
+            </div>
+        </section>
+
+        <section id="sec-9">
+            <h2>九、表格</h2>
+            <p>Markdown 表格使用竖线 <code>|</code> 分隔列，使用连字符 <code>-</code> 创建表头与内容分隔线。</p>
+
+            <h3>（1）基本表格</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>| 姓名 | 年龄 | 职业 |
+|------|------|------|
+| 张三 | 25   | 工程师 |
+| 李四 | 30   | 设计师 |
+| 王五 | 28   | 产品经理 |</code></pre>
+            </div>
+
+            <h3>（2）对齐方式</h3>
+            <p>通过在分隔线中使用冒号 <code>:</code> 来设置对齐方式：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>| 左对齐 | 居中对齐 | 右对齐 |
+|:--------|:--------:|--------:|
+| 内容 A  | 内容 B   | 内容 C  |
+| 内容 D  | 内容 E   | 内容 F  |</code></pre>
+            </div>
+
+            <div class="example-box">
+                <div class="example-title">渲染效果：</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">左对齐</th>
+                                <th style="text-align: center;">居中对齐</th>
+                                <th style="text-align: right;">右对齐</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="text-align: left;">内容 A</td>
+                                <td style="text-align: center;">内容 B</td>
+                                <td style="text-align: right;">内容 C</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">内容 D</td>
+                                <td style="text-align: center;">内容 E</td>
+                                <td style="text-align: right;">内容 F</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h3>（3）表格内使用其他元素</h3>
+            <p>表格单元格内可以使用文本格式化、链接、代码等：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>| 功能 | 语法 | 示例 |
+|------|------|------|
+| 粗体 | `**文本**` | **粗体** |
+| 斜体 | `*文本*` | *斜体* |
+| 链接 | `[文本](URL)` | [GitHub](https://github.com) |</code></pre>
+            </div>
+        </section>
+
+        <section id="sec-10">
+            <h2>十、分割线</h2>
+            <p>使用三个或更多的连字符 <code>-</code>、星号 <code>*</code> 或下划线 <code>_</code> 创建分割线：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>三个或更多连字符
+---
+
+三个或更多星号
+***
+
+三个或更多下划线
+___</code></pre>
+            </div>
+            <div class="example-box">
+                <div class="example-title">渲染效果：</div>
+                <hr style="border: none; border-top: 2px solid var(--stone); margin: 20px 0;">
+            </div>
+            <div class="info-box">
+                <strong>💡 提示：</strong>
+                <p>为了与标题语法区分，使用连字符时，建议在分割线前后各留一行空行。</p>
+            </div>
+        </section>
+
+        <section id="sec-11">
+            <h2>十一、任务列表</h2>
+            <p>任务列表可以创建待办事项清单，常用于项目管理和笔记整理。</p>
+
+            <h3>（1）基本语法</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>- [ ] 未完成任务
+- [x] 已完成任务
+- [ ] 另一个未完成任务</code></pre>
+            </div>
+
+            <div class="example-box">
+                <div class="example-title">渲染效果：</div>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li class="task-list-item"><input type="checkbox" disabled> 未完成任务</li>
+                    <li class="task-list-item"><input type="checkbox" checked disabled> 已完成任务</li>
+                    <li class="task-list-item"><input type="checkbox" disabled> 另一个未完成任务</li>
+                </ul>
+            </div>
+
+            <h3>（2）嵌套任务列表</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>- [x] 学习 Markdown 基础语法
+    - [x] 标题
+    - [x] 列表
+    - [x] 链接和图片
+- [ ] 实践练习
+    - [ ] 写一篇博客
+    - [ ] 整理笔记</code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 注意：</strong>
+                <p><code>[ ]</code> 和 <code>[x]</code> 中的空格是必需的。任务列表在 GitHub、GitLab、Typora 等平台和编辑器中支持良好。</p>
+            </div>
+        </section>
+
+        <section id="sec-12">
+            <h2>十二、脚注</h2>
+            <p>脚注用于在文档末尾添加注释或参考文献，使正文更整洁。</p>
+
+            <h3>（1）基本语法</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>这是一个脚注示例[^1]，用于添加额外说明。
+
+[^1]: 这是脚注的内容，会显示在文档末尾。</code></pre>
+            </div>
+
+            <h3>（2）实际应用</h3>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>Markdown 由 John Gruber 创建[^gruber]，并在 GitHub 等平台得到广泛应用[^github]。
+
+[^gruber]: John Gruber 是一位作家和软件开发者，也是 Daring Fireball 博客的创始人。
+[^github]: GitHub 是全球最大的代码托管平台，全面支持 Markdown 语法。</code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 兼容性说明：</strong>
+                <p>脚注语法属于 Markdown 扩展语法，不是所有解析器都支持。GitHub Flavored Markdown (GFM)、PHP Markdown Extra 等支持脚注。</p>
+            </div>
+        </section>
+
+        <section id="sec-13">
+            <h2>十三、高级技巧</h2>
+
+            <h3>（1）转义字符</h3>
+            <p>使用反斜杠 <code>\</code> 转义特殊字符：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>\* 不是斜体 \*
+\# 不是标题
+\[ 不是链接</code></pre>
+            </div>
+
+            <h3>（2）支持 HTML 标签</h3>
+            <p>Markdown 支持内嵌 HTML 标签，可以实现更复杂的格式：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>html</span></div>
+                <pre><code>&lt;div style="color: red;"&gt;红色文本&lt;/div&gt;
+&lt;span style="font-size: 20px;"&gt;大号文本&lt;/span&gt;
+&lt;details&gt;
+&lt;summary&gt;点击展开&lt;/summary&gt;
+隐藏的内容
+&lt;/details&gt;</code></pre>
+            </div>
+
+            <h3>（3）数学公式</h3>
+            <p>部分 Markdown 解析器支持 LaTeX 数学公式：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>行内公式：$E = mc^2$
+
+块级公式：
+$$
+\int_{a}^{b} f(x) \, dx = F(b) - F(a)
+$$</code></pre>
+            </div>
+
+            <h3>（4）流程图与图表</h3>
+            <p>使用 Mermaid 等扩展可以创建流程图、时序图等：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>```mermaid
+graph LR
+    A[开始] --> B{判断}
+    B -->|是| C[执行 A]
+    B -->|否| D[执行 B]
+    C --> E[结束]
+    D --> E
+```</code></pre>
+            </div>
+
+            <h3>（5）目录生成</h3>
+            <p>部分编辑器支持自动生成目录：</p>
+            <div class="code-wrapper">
+                <div class="code-header"><span>markdown</span></div>
+                <pre><code>[TOC]
+或
+[[toc]]
+或
+{{ .TOC }}</code></pre>
+            </div>
+
+            <div class="danger-box">
+                <strong>⚠️ 兼容性提示：</strong>
+                <p>以上高级功能需要特定的 Markdown 解析器或编辑器支持。在使用前请确认目标平台的兼容性。例如，数学公式在 Typora、VS Code（Markdown Preview Enhanced）中支持良好，但 GitHub 原生不支持。</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>恭喜完成！</h2>
+            <p>你已经掌握了 Markdown 的核心语法。现在可以开始使用 Markdown 高效地编写文档、博客和技术笔记了！</p>
+            <p>推荐实践路径：</p>
+            <ul>
+                <li>选择一个顺手的 Markdown 编辑器（如 Typora、VS Code + Markdown Preview Enhanced）</li>
+                <li>使用 Markdown 整理学习笔记和技术文档</li>
+                <li>在 GitHub、CSDN、博客园等平台发布 Markdown 格式的文章</li>
+                <li>探索 Markdown 的高级功能和扩展语法</li>
+            </ul>
+            <div class="info-box">
+                <strong>💡 学习资源：</strong>
+                <p>
+                    <strong>官方文档：</strong><a href="https://daringfireball.net/projects/markdown/" target="_blank" style="color: var(--signal);">Markdown: Syntax</a><br>
+                    <strong>GitHub 指南：</strong><a href="https://docs.github.com/cn/get-started/writing-on-github" target="_blank" style="color: var(--signal);">在 GitHub 上编写</a><br>
+                    <strong>在线练习：</strong><a href="https://www.markdowntutorial.com/" target="_blank" style="color: var(--signal);">Markdown Tutorial</a>
+                </p>
+            </div>
+        </section>
+
+        <!-- Navigation Links -->
+        <div class="nav-links">
+            <a class="nav-prev" href="../env/environment_configuration.html">
+                <span class="arrow">←</span>
+                <span>上一篇：WSL2 安装与配置</span>
+            </a>
+            <a class="nav-next" href="../Linux/linux_commands_tutorial.html">
+                <span>下一篇：Linux 入门命令</span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.code-wrapper').forEach(wrapper => {
+                const header = wrapper.querySelector('.code-header');
+                const codeBlock = wrapper.querySelector('pre code');
+                if (header && codeBlock) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.innerHTML = '复制';
+                    copyBtn.addEventListener('click', () => {
+                        const codeText = codeBlock.innerText;
+                        navigator.clipboard.writeText(codeText).then(() => {
+                            copyBtn.innerHTML = '已复制';
+                            copyBtn.classList.add('copied');
+                            setTimeout(() => { copyBtn.innerHTML = '复制'; copyBtn.classList.remove('copied'); }, 2000);
+                        }).catch(() => { copyBtn.innerHTML = '失败'; });
+                    });
+                    header.appendChild(copyBtn);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
