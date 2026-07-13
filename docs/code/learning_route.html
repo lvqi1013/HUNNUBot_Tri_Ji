@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机器人开发学习路线</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --code-bg:     #14161E;
+            --code-text:   #D6D9E0;
+            --code-header: #1E2130;
+            --code-muted:  #6B7280;
+            --info-bg:     #F5F3F0;
+            --info-border: #E3DED6;
+            --info-text:   #3E4A5C;
+            --highlight-bg:#FFF9ED;
+            --highlight-border:#FDE0B2;
+            --highlight-text:#8A4B0F;
+            --success:     #10B981;
+            --warning:     #F59E0B;
+            --blue:        #3B82F6;
+            --purple:      #8B5CF6;
+            --font-display: "DM Serif Display", "Noto Serif CJK SC", serif;
+            --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-mono:    "JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+            --radius:       6px;
+            --transition:   0.25s cubic-bezier(.4,0,.2,1);
+        }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+        body {
+            font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+            color: var(--ink-deep); background: var(--paper); -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed; width: 270px; height: 100vh; left: 0; top: 0;
+            background: var(--ink-deep); color: rgba(255,255,255,.85);
+            padding: 32px 22px; overflow-y: auto; z-index: 100;
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+        .sidebar-title {
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+            color: #fff; margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
+        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-item { margin-bottom: 4px; }
+        .sidebar-link {
+            display: block; padding: 7px 12px; color: rgba(255,255,255,.55);
+            text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+            transition: all var(--transition); border-left: 2px solid transparent;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; border-left-color: rgba(255,255,255,.2); }
+        .sidebar-link[href="../../promis/index.html"] { color: var(--signal); font-weight: 600; margin-bottom: 8px; }
+        .sidebar-link[href="../../promis/index.html"]:hover { background: rgba(242,103,34,.12); border-left-color: var(--signal); }
+
+        /* ── Main Content ── */
+        .main-content { margin-left: 270px; padding: 48px 56px 64px; max-width: 1060px; }
+
+        /* ── Header Banner ── */
+        .header-banner {
+            background: var(--ink-deep); color: white; padding: 44px 40px;
+            border-radius: var(--radius); margin-bottom: 40px; position: relative; overflow: hidden;
+        }
+        .header-banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,.01) 39px, rgba(255,255,255,.01) 41px, transparent 41px) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+        }
+        .header-banner h1 { position: relative; font-family: var(--font-display); font-size: 2rem; font-weight: 400; letter-spacing: 0.03em; margin-bottom: 8px; }
+        .header-banner p { position: relative; font-size: 1rem; opacity: 0.6; font-weight: 400; }
+
+        /* ── Sections ── */
+        section { background: var(--surface); padding: 32px 36px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--stone); }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--ink-deep); margin: 0 0 20px 0; padding-left: 14px; border-left: 3px solid var(--signal); letter-spacing: 0.02em; line-height: 1.3; }
+        h3 { font-size: 1.05rem; font-weight: 650; color: var(--ink-deep); margin: 24px 0 10px; letter-spacing: 0.01em; }
+        p { margin: 0 0 14px; color: var(--steel); }
+        ul, ol { margin: 12px 0; padding-left: 24px; }
+        ul li, ol li { margin-bottom: 6px; color: var(--steel); }
+
+        /* ── Inline Code ── */
+        code:not(pre code) { font-family: var(--font-mono); background: var(--tag-bg); color: #C2410C; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: 500; }
+
+        /* ── Alert Boxes ── */
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .info-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+        .highlight-box { background: var(--highlight-bg); border: 1px solid var(--highlight-border); color: var(--highlight-text); padding: 12px 16px; border-radius: var(--radius); margin: 16px 0; font-weight: 500; font-size: 0.92rem; }
+
+        /* ── Learning Steps ── */
+        .steps-container { margin: 24px 0; }
+        .step-card {
+            background: linear-gradient(135deg, #F7F5F1 0%, #EFECE6 100%);
+            border: 1px solid var(--stone); border-radius: var(--radius);
+            padding: 20px 24px; margin-bottom: 16px; position: relative;
+            display: flex; gap: 16px; align-items: flex-start;
+            transition: all var(--transition);
+        }
+        .step-card:hover { border-color: var(--signal); transform: translateX(4px); }
+        .step-number {
+            background: var(--signal); color: #fff; width: 36px; height: 36px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-title { font-size: 1.05rem; font-weight: 650; color: var(--ink-deep); margin-bottom: 8px; }
+        .step-desc { color: var(--steel); font-size: 0.95rem; line-height: 1.6; }
+        .step-tag {
+            display: inline-block; background: var(--tag-bg); color: var(--steel);
+            padding: 3px 10px; border-radius: 3px; font-size: 0.75rem;
+            font-weight: 600; margin-top: 8px;
+        }
+
+        /* ── Timeline ── */
+        .timeline-container { margin: 24px 0; position: relative; }
+        .timeline-container::before {
+            content: ""; position: absolute; left: 20px; top: 0; bottom: 0;
+            width: 2px; background: var(--stone); border-radius: 1px;
+        }
+        .timeline-item {
+            position: relative; padding-left: 48px; margin-bottom: 20px;
+        }
+        .timeline-marker {
+            position: absolute; left: 12px; top: 4px;
+            width: 16px; height: 16px; border-radius: 50%;
+            background: var(--surface); border: 3px solid var(--signal);
+        }
+        .timeline-date {
+            display: inline-block; background: var(--signal); color: #fff;
+            padding: 4px 12px; border-radius: 4px; font-size: 0.8rem;
+            font-weight: 600; margin-bottom: 8px;
+        }
+        .timeline-content {
+            background: var(--surface); border: 1px solid var(--stone);
+            border-radius: var(--radius); padding: 16px 20px;
+        }
+        .timeline-title { font-weight: 650; color: var(--ink-deep); margin-bottom: 6px; }
+        .timeline-desc { color: var(--steel); font-size: 0.95rem; }
+
+        /* ── Resource Links ── */
+        .resource-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(59,130,246,.08); color: var(--blue);
+            padding: 6px 14px; border-radius: var(--radius);
+            text-decoration: none; font-size: 0.9rem; font-weight: 500;
+            transition: all var(--transition); margin-top: 8px;
+        }
+        .resource-link:hover { background: rgba(59,130,246,.15); }
+
+        /* ── Responsive ── */
+        @media (max-width: 992px) {
+            .sidebar { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); padding: 20px; }
+            .main-content { margin-left: 0; padding: 28px 18px; }
+            .header-banner { padding: 28px 22px; border-radius: 0; }
+            .header-banner h1 { font-size: 1.5rem; }
+            section { padding: 24px 18px; }
+            .timeline-container::before { left: 10px; }
+            .timeline-item { padding-left: 32px; }
+            .timeline-marker { left: 2px; }
+        }
+    </style>
+    <link rel="stylesheet" href="../../assets/rig-inspired.css">
+    <link rel="stylesheet" href="../../assets/promise-docs.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-title">教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../promis/index.html">← 返回资料主页</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-1">一、学习路线概览</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-2">二、学习步骤详解</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-3">三、时间安排</a></li>
+            <li class="sidebar-item"><a class="sidebar-link" href="#sec-4">四、推荐资源</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header-banner">
+            <h1>机器人开发学习路线</h1>
+            <p>从零基础到掌握 ROS2 开发的完整学习规划</p>
+        </div>
+
+        <p style="color: var(--steel); font-size: 0.95rem; margin-bottom: 30px;">
+            本学习路线专为机器人开发初学者设计，涵盖从基础工具配置到 ROS2 核心技能的完整学习路径。按照时间规划逐步学习，你将具备独立完成简单机器人项目的能力。
+        </p>
+
+        <section id="sec-1">
+            <h2>一、学习路线概览</h2>
+            <p>机器人开发需要掌握多项技能，以下是核心学习内容的总体框架：</p>
+            <div class="info-box">
+                <strong>🎯 学习目标：</strong>
+                <p>掌握机器人开发的核心技能，能够独立完成简单的机器人项目，为参与竞赛和实际开发打下坚实基础。</p>
+            </div>
+            <ul>
+                <li><strong>工具基础：</strong>Markdown、Git、GitHub</li>
+                <li><strong>开发环境：</strong>WSL2 + Ubuntu 24.04 + ROS2 Jazzy</li>
+                <li><strong>编程语言：</strong>Python 或 C++ 基础</li>
+                <li><strong>机器人框架：</strong>ROS2 核心概念与实践</li>
+            </ul>
+        </section>
+
+        <section id="sec-2">
+            <h2>二、学习步骤详解</h2>
+            <p>按照以下顺序逐步学习，每个步骤都是后续学习的基础：</p>
+
+            <div class="steps-container">
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">学习 Markdown 语法</div>
+                        <div class="step-desc">
+                            Markdown 是一种轻量级标记语言，广泛用于编写技术文档和学习笔记。学会 Markdown 后，你可以高效地记录学习过程，整理知识体系。
+                        </div>
+                        <span class="step-tag">基础工具</span>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">配置机器人开发环境</div>
+                        <div class="step-desc">
+                            安装 WSL2（Windows Subsystem for Linux），并在其中配置 Ubuntu 24.04 系统。然后安装 ROS2 Jazzy 版本，这是机器人开发的核心中间件。<br>
+                            <strong>注意：</strong>对于 ROS1 项目，需要使用 Ubuntu 20.04 系统。
+                        </div>
+                        <span class="step-tag">环境配置</span>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">安装 Git 并学习版本控制</div>
+                        <div class="step-desc">
+                            Git 是最流行的版本控制系统，用于管理代码的修改历史。学会 Git 后，你可以追踪代码变更、回退错误修改、与他人协作开发。
+                        </div>
+                        <span class="step-tag">版本控制</span>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">注册 GitHub 账号</div>
+                        <div class="step-desc">
+                            GitHub 是全球最大的代码托管平台，用于存储代码和笔记。注册 GitHub 后，建立自己的学习笔记仓库，将学习成果整理并公开分享。
+                        </div>
+                        <span class="step-tag">代码托管</span>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="step-card">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">掌握 Python 基础</div>
+                        <div class="step-desc">
+                            Python 是机器人开发中最常用的编程语言之一。建议掌握 Python 基础语法、数据结构、函数和模块，能够独立完成简单的机器人项目。
+                        </div>
+                        <span class="step-tag">编程语言</span>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="step-card">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <div class="step-title">学习 ROS2 核心</div>
+                        <div class="step-desc">
+                            ROS2 是机器人开发的核心框架。学习 ROS2 的核心概念（节点 Node、话题 Topic、服务 Service、动作 Action），并通过实践项目加深理解。
+                        </div>
+                        <span class="step-tag">机器人框架</span>
+                        <a class="resource-link" href="https://book.guyuehome.com/" target="_blank">
+                            🔗 21天学ROS2教程
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-3">
+            <h2>三、时间安排</h2>
+            <p>以下是针对零基础同学的时间安排建议，可根据个人情况调整。这些是集训的最低要求：</p>
+
+            <div class="highlight-box">
+                ⚠️ 时间安排仅供参考，请根据个人学习进度灵活调整。集训期间必须完成最低要求。
+            </div>
+
+            <div class="timeline-container">
+                <!-- Phase 1 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <span class="timeline-date">7.13 - 7.15</span>
+                    <div class="timeline-content">
+                        <div class="timeline-title">第一阶段：基础工具与环境</div>
+                        <div class="timeline-desc">
+                            学习 Markdown 语法，配置所需开发环境（WSL2 + Ubuntu + ROS2），安装 Git，注册 GitHub 账号，提交一个自己的仓库，完成学习笔记。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <span class="timeline-date">7.16 - 7.18</span>
+                    <div class="timeline-content">
+                        <div class="timeline-title">第二阶段：编程语言基础</div>
+                        <div class="timeline-desc">
+                            学习 Python（或 C++）基础语法，掌握变量、数据类型、循环、函数等核心概念，完成简单的编程练习。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <span class="timeline-date">7.19 - 7.25</span>
+                    <div class="timeline-content">
+                        <div class="timeline-title">第三阶段：ROS2 核心学习</div>
+                        <div class="timeline-desc">
+                            学习 ROS2 核心概念，包括节点、话题、服务、动作等。参考鱼香 ROS2 和21天学 ROS2 的教程，完成基础实践项目。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 4 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <span class="timeline-date">开学前</span>
+                    <div class="timeline-content">
+                        <div class="timeline-title">第四阶段：组队与竞赛准备</div>
+                        <div class="timeline-desc">
+                            完成初步组队，回家之后到开学前继续进行竞赛准备，深入学习机器人相关技术，为竞赛打下坚实基础。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-4">
+            <h2>四、推荐资源</h2>
+            <p>以下是学习过程中推荐的教程和资源：</p>
+            <ul>
+                <li><strong>鱼香 ROS2 教程：</strong>通俗易懂的 ROS2 入门教程</li>
+                <li><strong>21天学 ROS2：</strong> <a class="resource-link" href="https://book.guyuehome.com/" target="_blank">https://book.guyuehome.com/</a></li>
+                <li><strong>ROS2 官方文档：</strong>权威的 ROS2 技术文档</li>
+                <li><strong>古月居：</strong>机器人技术学习社区</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>💡 学习建议：</strong>
+                <p>1. 每天保持一定的学习时间，避免临时突击</p>
+                <p>2. 多动手实践，理论知识需要通过项目巩固</p>
+                <p>3. 遇到问题及时记录并寻求帮助，不要积累问题</p>
+                <p>4. 建立学习笔记，整理知识体系</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>注意事项</h2>
+            <ul>
+                <li>以上时间安排是集训的最低要求，请务必按时完成</li>
+                <li>有基础的同学可以适当加快进度，提前进入下一阶段</li>
+                <li>遇到困难时，可以向队友或学长学姐寻求帮助</li>
+                <li>学习过程中要保持耐心，机器人开发需要持续积累</li>
+            </ul>
+        </section>
+    </div>
+
+</body>
+</html>
