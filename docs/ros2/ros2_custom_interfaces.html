@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS2 自定义接口 - 消息与服务定义</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --code-bg:     #14161E;
+            --code-text:   #D6D9E0;
+            --code-header: #1E2130;
+            --code-muted:  #6B7280;
+            --danger-bg:   #FDF2F2;
+            --danger-border:#FBC4C4;
+            --danger-text:  #9B1C1C;
+            --info-bg:     #F5F3F0;
+            --info-border: #E3DED6;
+            --info-text:   #3E4A5C;
+            --success:     #10B981;
+            --font-display: "DM Serif Display", "Noto Serif CJK SC", serif;
+            --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-mono:    "JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+            --radius:       6px;
+            --transition:   0.25s cubic-bezier(.4,0,.2,1);
+        }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+        body {
+            font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+            color: var(--ink-deep); background: var(--paper); -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed; width: 270px; height: 100vh; left: 0; top: 0;
+            background: var(--ink-deep); color: rgba(255,255,255,.85);
+            padding: 32px 22px; overflow-y: auto; z-index: 100;
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+        .sidebar-title {
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+            color: #fff; margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
+        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-item { margin-bottom: 4px; }
+        .sidebar-link {
+            display: block; padding: 7px 12px; color: rgba(255,255,255,.55);
+            text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+            transition: all var(--transition); border-left: 2px solid transparent;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; border-left-color: rgba(255,255,255,.2); }
+        .sidebar-link.active { background: rgba(242,103,34,.12); color: var(--signal); border-left-color: var(--signal); }
+
+        /* Main Content */
+        .main-content { margin-left: 270px; padding: 48px 56px 64px; max-width: 1060px; }
+
+        /* Header Banner */
+        .header-banner {
+            background: var(--ink-deep); color: white; padding: 44px 40px;
+            border-radius: var(--radius); margin-bottom: 40px; position: relative; overflow: hidden;
+        }
+        .header-banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,.01) 39px, rgba(255,255,255,.01) 41px, transparent 41px) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+        }
+        .header-banner h1 { position: relative; font-family: var(--font-display); font-size: 2rem; font-weight: 400; letter-spacing: 0.03em; margin-bottom: 8px; }
+        .header-banner p { position: relative; font-size: 1rem; opacity: 0.6; font-weight: 400; }
+
+        /* Sections */
+        section { background: var(--surface); padding: 32px 36px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--stone); }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--ink-deep); margin: 0 0 20px 0; padding-left: 14px; border-left: 3px solid var(--signal); letter-spacing: 0.02em; line-height: 1.3; }
+        h3 { font-size: 1.05rem; font-weight: 650; color: var(--ink-deep); margin: 24px 0 10px; letter-spacing: 0.01em; }
+        h4 { font-size: 0.95rem; font-weight: 650; color: var(--steel); margin: 18px 0 8px; }
+        p { margin: 0 0 14px; color: var(--steel); }
+        ul, ol { margin: 12px 0; padding-left: 24px; }
+        ul li, ol li { margin-bottom: 6px; color: var(--steel); }
+
+        /* Inline Code */
+        code:not(pre code) { font-family: var(--font-mono); background: var(--tag-bg); color: #C2410C; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: 500; }
+
+        /* Code Blocks */
+        .code-wrapper { margin: 16px 0; border-radius: var(--radius); overflow: hidden; }
+        .code-header { background: var(--code-header); color: var(--code-muted); padding: 6px 16px; font-size: 0.7rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.7); padding: 2px 10px; border-radius: 3px; font-size: 0.68rem; cursor: pointer; transition: all var(--transition); font-family: var(--font-body); }
+        .copy-btn:hover { background: rgba(242,103,34,.25); border-color: var(--signal); color: var(--signal); }
+        .copy-btn.copied { background: var(--success); border-color: var(--success); color: #fff; }
+        pre { margin: 0; padding: 16px 18px; background: var(--code-bg); color: var(--code-text); font-family: var(--font-mono); font-size: 0.88rem; overflow-x: auto; line-height: 1.65; }
+
+        /* Alert Boxes */
+        .danger-box { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .danger-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .info-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+
+        /* Tables */
+        .table-container { overflow-x: auto; margin: 20px 0; border: 1px solid var(--stone); border-radius: var(--radius); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+        th { background: var(--paper); color: var(--steel); font-weight: 600; padding: 12px 16px; border-bottom: 2px solid var(--stone); }
+        td { padding: 10px 16px; border-bottom: 1px solid var(--stone); color: var(--steel); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--paper); }
+
+        /* Tree View */
+        .tree-view { font-family: var(--font-mono); background: var(--paper); border: 1px solid var(--stone); padding: 14px 16px; border-radius: var(--radius); margin: 12px 0; color: var(--steel); font-size: 0.88rem; }
+
+        /* Concept Title */
+        .concept-title { text-align: center; font-size: 28px; color: #a915eeff; font-family: 'Courier New', Courier, monospace; margin: 24px 0; }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 40px; padding: 20px 0; border-top: 1px solid var(--stone);
+        }
+        .nav-links a {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; border-radius: var(--radius);
+            text-decoration: none; font-size: 0.95rem; font-weight: 500;
+            transition: all var(--transition);
+        }
+        .nav-prev { background: var(--paper); color: var(--steel); border: 1px solid var(--stone); }
+        .nav-prev:hover { background: var(--stone); color: var(--ink-deep); }
+        .nav-next { background: var(--signal); color: white; border: 1px solid var(--signal); }
+        .nav-next:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(242,103,34,.3); }
+        .nav-disabled { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
+
+        /* Images */
+        img { max-width: 100%; border-radius: var(--radius); margin: 12px 0; }
+        .img-center { text-align: center; margin: 16px 0; }
+        .img-center img { width: 85%; }
+
+        /* Interface Types */
+        .interface-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 16px; margin: 20px 0;
+        }
+        .interface-card {
+            background: var(--paper); border: 1px solid var(--stone);
+            padding: 20px; border-radius: var(--radius); text-align: center;
+        }
+        .interface-card h4 {
+            margin-top: 0; color: var(--signal);
+            border-bottom: 2px solid var(--stone);
+            padding-bottom: 10px; margin-bottom: 12px;
+        }
+        .interface-card .icon {
+            font-size: 2rem; margin-bottom: 10px;
+        }
+
+        /* Flowchart */
+        .flowchart {
+            background: var(--paper); border: 1px solid var(--stone);
+            padding: 24px; border-radius: var(--radius); margin: 20px 0;
+            text-align: center;
+        }
+        .flowchart-row {
+            display: flex; justify-content: center; align-items: center; gap: 16px;
+            margin: 12px 0; flex-wrap: wrap;
+        }
+        .flowchart-box {
+            background: var(--surface); border: 2px solid var(--signal);
+            padding: 12px 24px; border-radius: 8px; font-weight: 600;
+            color: var(--ink-deep);
+        }
+        .flowchart-arrow {
+            color: var(--signal); font-size: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { position: static; width: 100%; height: auto; padding: 20px; }
+            .main-content { margin-left: 0; padding: 24px 20px; }
+            .nav-links { flex-direction: column; gap: 12px; }
+            .nav-links a { width: 100%; justify-content: center; }
+            .interface-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <link rel="stylesheet" href="../../assets/rig-inspired.css">
+    <link rel="stylesheet" href="../../assets/promise-docs.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-title">教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../promis/index.html">← 返回资料主页</a></li>
+            <li class="sidebar-item"><a href="ros2_basics.html" class="sidebar-link">01 - 基础概念</a></li>
+            <li class="sidebar-item"><a href="ros2_topic_communication.html" class="sidebar-link">02 - 话题通信</a></li>
+            <li class="sidebar-item"><a href="ros2_service_communication.html" class="sidebar-link">03 - 服务通信</a></li>
+            <li class="sidebar-item"><a href="ros2_custom_interfaces.html" class="sidebar-link active">04 - 自定义接口</a></li>
+            <li class="sidebar-item"><a href="ros2_action.html" class="sidebar-link">05 - 动作</a></li>
+            <li class="sidebar-item"><a href="ros2_parameters.html" class="sidebar-link">06 - 参数</a></li>
+            <li class="sidebar-item"><a href="ros2_launch.html" class="sidebar-link">07 - Launch文件</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header Banner -->
+        <header class="header-banner">
+            <h1>ROS2 自定义接口</h1>
+            <p>消息与服务定义 - 语言无关的数据交互</p>
+        </header>
+
+        <!-- 自定义接口概念 -->
+        <section id="concept">
+            <h2>自定义接口概念</h2>
+
+            <h3>1. 什么是接口</h3>
+            <p>在 ROS 2 中，<strong>接口（Interface）</strong>是节点之间通信的"数据契约"。它定义了数据的结构和类型，确保不同节点之间能够正确理解和处理数据。</p>
+
+            <p>ROS 2 提供了三种主要接口类型：</p>
+            <div class="interface-grid">
+                <div class="interface-card">
+                    <div class="icon">📨</div>
+                    <h4>消息（msg）</h4>
+                    <p>用于话题通信</p>
+                    <p style="font-size: 0.85rem;">单向、持续的数据流</p>
+                </div>
+                <div class="interface-card">
+                    <div class="icon">🔌</div>
+                    <h4>服务（srv）</h4>
+                    <p>用于服务通信</p>
+                    <p style="font-size: 0.85rem;">请求-响应模式</p>
+                </div>
+                <div class="interface-card">
+                    <div class="icon">🎯</div>
+                    <h4>动作（action）</h4>
+                    <p>用于动作通信</p>
+                    <p style="font-size: 0.85rem;">可反馈的长时间任务</p>
+                </div>
+            </div>
+
+            <h3>2. 为什么需要自定义接口</h3>
+            <p>ROS 2 内置了许多标准接口（如 <code>std_msgs</code>、<code>sensor_msgs</code> 等），但在实际开发中，我们常常需要定义自己的数据结构：</p>
+            <ul>
+                <li>描述特定的业务数据（如学生信息、机器人状态等）</li>
+                <li>组合多种数据类型形成复合结构</li>
+                <li>定义特定服务请求和响应格式</li>
+                <li>实现跨语言、跨平台的数据交互</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    典型应用场景
+                </strong>
+                <ul>
+                    <li>自定义机器人传感器数据格式</li>
+                    <li>定义特定的控制指令结构</li>
+                    <li>封装复杂的状态信息</li>
+                    <li>创建项目专用的服务接口</li>
+                </ul>
+            </div>
+
+            <h3>3. 接口包与功能包的关系</h3>
+            <p>在 ROS 2 中，自定义接口通常放在<strong>独立的接口包</strong>中：</p>
+            <ul>
+                <li><strong>接口包</strong>：专门用于定义接口（msg、srv、action），不包含节点代码</li>
+                <li><strong>功能包</strong>：包含实际的节点实现，依赖接口包</li>
+            </ul>
+
+            <div class="flowchart">
+                <div class="flowchart-row">
+                    <div class="flowchart-box" style="background: var(--tag-bg);">接口包</div>
+                    <span class="flowchart-arrow">→</span>
+                    <div class="flowchart-box" style="border-color: #10B981;">编译生成</div>
+                    <span class="flowchart-arrow">→</span>
+                    <div class="flowchart-box" style="background: var(--tag-bg);">Python/C++ 代码</div>
+                    <span class="flowchart-arrow">→</span>
+                    <div class="flowchart-box" style="border-color: #10B981;">功能包调用</div>
+                </div>
+            </div>
+
+            <p>这种分离设计的好处：</p>
+            <ul>
+                <li><strong>复用性</strong>：一个接口包可以被多个功能包使用</li>
+                <li><strong>解耦</strong>：接口定义与实现分离，便于维护</li>
+                <li><strong>协作</strong>：团队成员可以各自开发功能包，共享接口定义</li>
+            </ul>
+
+            <h3>4. 语言无关性</h3>
+            <p>ROS 2 接口的一个重要特性是<strong>语言无关性</strong>：</p>
+            <ul>
+                <li>接口定义使用简单的文本格式（.msg、.srv 文件）</li>
+                <li>编译时自动生成各语言的代码（Python、C++ 等）</li>
+                <li>不同语言编写的节点可以无缝通信</li>
+            </ul>
+
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/custom_interfaces_lang.png" alt="语言无关性">
+            </div>
+
+            <div class="info-box">
+                <strong>关键点</strong>
+                <p>无论使用 Python 还是 C++，只要引用相同的接口包，就能正确解析数据结构。</p>
+            </div>
+        </section>
+
+        <!-- 学习内容1：自定义消息创建与使用 -->
+        <section id="practice">
+            <h2>学习内容：自定义消息创建与使用</h2>
+
+            <h3>（一）创建接口包</h3>
+            <p>首先进入工作空间的 <code>src</code> 目录，创建一个专门用于存放接口的包：</p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>cd ~/ros_code/lq_ws/src
+ros2 pkg create --build-type ament_cmake student_interfaces</code></pre>
+            </div>
+
+            <div class="danger-box">
+                <strong>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    注意
+                </strong>
+                <p>接口包必须使用 <code>ament_cmake</code> 构建类型，不能使用 <code>ament_python</code>！</p>
+            </div>
+
+            <h3>（二）创建 msg 和 srv 目录</h3>
+            <p>进入接口包目录，创建存放消息和服务定义的文件夹：</p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>cd student_interfaces
+mkdir msg
+mkdir srv</code></pre>
+            </div>
+
+            <p>此时目录结构如下：</p>
+            <div class="tree-view">
+student_interfaces/
+├── CMakeLists.txt
+├── package.xml
+├── msg/
+├── srv/
+└── include/
+            </div>
+
+            <h3>（三）编写 Student.msg 自定义消息</h3>
+            <p>在 <code>msg</code> 目录下创建 <code>Student.msg</code> 文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header">msg/Student.msg</div>
+                <pre><code>string name        # 学生姓名
+int32 age           # 学生年龄
+float64 height      # 学生身高
+string grade        # 学生年级
+bool is_graduated   # 是否毕业</code></pre>
+            </div>
+
+            <p>消息定义语法说明：</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>字段类型</th>
+                            <th>说明</th>
+                            <th>示例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>int8/16/32/64</code></td>
+                            <td>有符号整数</td>
+                            <td><code>int32 age</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>uint8/16/32/64</code></td>
+                            <td>无符号整数</td>
+                            <td><code>uint8 count</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>float32/64</code></td>
+                            <td>浮点数</td>
+                            <td><code>float64 height</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>string</code></td>
+                            <td>字符串</td>
+                            <td><code>string name</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>bool</code></td>
+                            <td>布尔值</td>
+                            <td><code>bool active</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>数组</code></td>
+                            <td>使用 <code>[]</code></td>
+                            <td><code>int32[] scores</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>（四）编写 StudentInfo.srv 自定义服务</h3>
+            <p>在 <code>srv</code> 目录下创建 <code>StudentInfo.srv</code> 文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header">srv/StudentInfo.srv</div>
+                <pre><code># 请求部分
+string student_id
+---
+# 响应部分
+string name
+int32 age
+float64 height
+string grade
+bool found</code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>服务定义格式</strong>
+                <ul>
+                    <li><code>---</code> 上方为请求（Request）数据</li>
+                    <li><code>---</code> 下方为响应（Response）数据</li>
+                </ul>
+            </div>
+
+            <h3>（五）修改 CMakeLists.txt</h3>
+            <p>打开 <code>CMakeLists.txt</code>，进行以下修改：</p>
+
+            <h4>1. 添加依赖</h4>
+            <div class="code-wrapper">
+                <div class="code-header">cmake</div>
+                <pre><code>find_package(rosidl_default_generators REQUIRED)
+find_package(rosidl_interface_packages REQUIRED)</code></pre>
+            </div>
+
+            <h4>2. 添加消息和服务定义</h4>
+            <div class="code-wrapper">
+                <div class="code-header">cmake</div>
+                <pre><code>rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Student.msg"
+  "srv/StudentInfo.srv"
+)</code></pre>
+            </div>
+
+            <h4>3. 添加导出依赖</h4>
+            <div class="code-wrapper">
+                <div class="code-header">cmake</div>
+                <pre><code>ament_export_dependencies(rosidl_default_runtime)</code></pre>
+            </div>
+
+            <p>完整的 CMakeLists.txt 示例：</p>
+            <div class="code-wrapper">
+                <div class="code-header">CMakeLists.txt</div>
+                <pre><code>cmake_minimum_required(VERSION 3.8)
+project(student_interfaces)
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(rosidl_interface_packages REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Student.msg"
+  "srv/StudentInfo.srv"
+)
+
+ament_export_dependencies(rosidl_default_runtime)
+
+ament_package()</code></pre>
+            </div>
+
+            <h3>（六）修改 package.xml</h3>
+            <p>打开 <code>package.xml</code>，添加必要的依赖声明：</p>
+            <div class="code-wrapper">
+                <div class="code-header">xml</div>
+                <pre><code>&lt;?xml version="1.0"?&gt;
+&lt;?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?&gt;
+&lt;package format="3"&gt;
+  &lt;name&gt;student_interfaces&lt;/name&gt;
+  &lt;version&gt;0.0.0&lt;/version&gt;
+  &lt;description&gt;自定义学生信息接口包&lt;/description&gt;
+  &lt;maintainer email="user@todo.todo"&gt;user&lt;/maintainer&gt;
+  &lt;license&gt;TODO: License declaration&lt;/license&gt;
+
+  &lt;buildtool_depend&gt;ament_cmake&lt;/buildtool_depend&gt;
+
+  &lt;build_depend&gt;rosidl_default_generators&lt;/build_depend&gt;
+  &lt;exec_depend&gt;rosidl_default_runtime&lt;/exec_depend&gt;
+  &lt;member_of_group&gt;rosidl_interface_packages&lt;/member_of_group&gt;
+
+  &lt;export&gt;
+    &lt;build_type&gt;ament_cmake&lt;/build_type&gt;
+  &lt;/export&gt;
+&lt;/package&gt;</code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>关键依赖说明</strong>
+                <ul>
+                    <li><code>rosidl_default_generators</code>：用于编译时生成接口代码</li>
+                    <li><code>rosidl_default_runtime</code>：运行时依赖</li>
+                    <li><code>rosidl_interface_packages</code>：标记此包为接口包</li>
+                </ul>
+            </div>
+
+            <h3>（七）编译接口包</h3>
+            <p>返回工作空间根目录，编译接口包：</p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>cd ~/ros_code/lq_ws
+colcon build --packages-select student_interfaces
+source install/setup.bash</code></pre>
+            </div>
+
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-custom-interface-build.png" alt="编译接口包">
+            </div>
+
+            <h4>验证接口包是否编译成功</h4>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code># 查看消息接口
+ros2 interface show student_interfaces/msg/Student
+
+# 查看服务接口
+ros2 interface show student_interfaces/srv/StudentInfo</code></pre>
+            </div>
+
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-custom-interface-verify.png" alt="验证接口">
+            </div>
+
+            <h3>（八）创建使用接口的 Python 功能包</h3>
+            <p>现在创建一个 Python 功能包来使用我们定义的接口：</p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>cd ~/ros_code/lq_ws/src
+ros2 pkg create --build-type ament_python student_pkg --dependencies rclpy student_interfaces</code></pre>
+            </div>
+
+            <h3>（九）编写发布者节点</h3>
+            <p>在功能包目录下创建 <code>student_publisher.py</code>：</p>
+            <div class="code-wrapper">
+                <div class="code-header">python</div>
+                <pre><code>import rclpy
+from rclpy.node import Node
+from student_interfaces.msg import Student
+
+class StudentPublisher(Node):
+    def __init__(self):
+        super().__init__('student_publisher')
+        self.publisher_ = self.create_publisher(Student, 'student_info', 10)
+        self.timer = self.create_timer(1.0, self.timer_callback)
+        self.get_logger().info('学生信息发布者已启动')
+
+    def timer_callback(self):
+        msg = Student()
+        msg.name = '张三'
+        msg.age = 20
+        msg.height = 175.5
+        msg.grade = '三年级'
+        msg.is_graduated = False
+        
+        self.publisher_.publish(msg)
+        self.get_logger().info(f'发布学生信息: {msg.name}, {msg.age}岁, {msg.height}cm')
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = StudentPublisher()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</code></pre>
+            </div>
+
+            <h3>（十）编写订阅者节点</h3>
+            <p>创建 <code>student_subscriber.py</code>：</p>
+            <div class="code-wrapper">
+                <div class="code-header">python</div>
+                <pre><code>import rclpy
+from rclpy.node import Node
+from student_interfaces.msg import Student
+
+class StudentSubscriber(Node):
+    def __init__(self):
+        super().__init__('student_subscriber')
+        self.subscription = self.create_subscription(
+            Student,
+            'student_info',
+            self.listener_callback,
+            10)
+        self.get_logger().info('学生信息订阅者已启动')
+
+    def listener_callback(self, msg):
+        self.get_logger().info(
+            f'收到学生信息:\n'
+            f'  姓名: {msg.name}\n'
+            f'  年龄: {msg.age}岁\n'
+            f'  身高: {msg.height}cm\n'
+            f'  年级: {msg.grade}\n'
+            f'  是否毕业: {"是" if msg.is_graduated else "否"}'
+        )
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = StudentSubscriber()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</code></pre>
+            </div>
+
+            <h3>（十一）编写服务端节点</h3>
+            <p>创建 <code>student_server.py</code>：</p>
+            <div class="code-wrapper">
+                <div class="code-header">python</div>
+                <pre><code>import rclpy
+from rclpy.node import Node
+from student_interfaces.srv import StudentInfo
+
+# 模拟数据库
+STUDENT_DATABASE = {
+    '001': {'name': '张三', 'age': 20, 'height': 175.5, 'grade': '三年级'},
+    '002': {'name': '李四', 'age': 19, 'height': 168.0, 'grade': '二年级'},
+    '003': {'name': '王五', 'age': 21, 'height': 180.0, 'grade': '四年级'},
+}
+
+class StudentServer(Node):
+    def __init__(self):
+        super().__init__('student_server')
+        self.srv = self.create_service(StudentInfo, 'get_student_info', self.get_student_info_callback)
+        self.get_logger().info('学生信息服务端已启动')
+
+    def get_student_info_callback(self, request, response):
+        student_id = request.student_id
+        self.get_logger().info(f'收到查询请求，学号: {student_id}')
+        
+        if student_id in STUDENT_DATABASE:
+            student = STUDENT_DATABASE[student_id]
+            response.name = student['name']
+            response.age = student['age']
+            response.height = student['height']
+            response.grade = student['grade']
+            response.found = True
+            self.get_logger().info(f'找到学生: {student["name"]}')
+        else:
+            response.found = False
+            response.name = ''
+            self.get_logger().info('未找到该学生')
+        
+        return response
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = StudentServer()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</code></pre>
+            </div>
+
+            <h3>（十二）编写客户端节点</h3>
+            <p>创建 <code>student_client.py</code>：</p>
+            <div class="code-wrapper">
+                <div class="code-header">python</div>
+                <pre><code>import rclpy
+from rclpy.node import Node
+from student_interfaces.srv import StudentInfo
+
+class StudentClient(Node):
+    def __init__(self):
+        super().__init__('student_client')
+        self.client = self.create_client(StudentInfo, 'get_student_info')
+        while not self.client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('等待服务端...')
+        self.get_logger().info('学生信息客户端已连接')
+
+    def send_request(self, student_id):
+        request = StudentInfo.Request()
+        request.student_id = student_id
+        self.future = self.client.call_async(request)
+        return self.future
+
+def main(args=None):
+    rclpy.init(args=args)
+    client_node = StudentClient()
+    
+    # 查询学号为 001 的学生
+    future = client_node.send_request('001')
+    rclpy.spin_until_future_complete(client_node, future)
+    
+    if future.result() is not None:
+        response = future.result()
+        if response.found:
+            client_node.get_logger().info(
+                f'查询成功:\n'
+                f'  姓名: {response.name}\n'
+                f'  年龄: {response.age}岁\n'
+                f'  身高: {response.height}cm\n'
+                f'  年级: {response.grade}'
+            )
+        else:
+            client_node.get_logger().info('未找到该学生')
+    else:
+        client_node.get_logger().error('服务调用失败')
+    
+    client_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</code></pre>
+            </div>
+
+            <h3>（十三）修改 setup.py</h3>
+            <p>打开功能包的 <code>setup.py</code>，添加入口点：</p>
+            <div class="code-wrapper">
+                <div class="code-header">python</div>
+                <pre><code>entry_points={
+    'console_scripts': [
+        'student_publisher = student_pkg.student_publisher:main',
+        'student_subscriber = student_pkg.student_subscriber:main',
+        'student_server = student_pkg.student_server:main',
+        'student_client = student_pkg.student_client:main',
+    ],
+},</code></pre>
+            </div>
+
+            <h3>（十四）编译运行验证</h3>
+
+            <h4>1. 编译所有包</h4>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>cd ~/ros_code/lq_ws
+colcon build
+source install/setup.bash</code></pre>
+            </div>
+
+            <h4>2. 测试话题通信（自定义消息）</h4>
+            <p><strong>终端1 - 运行发布者：</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>source install/setup.bash
+ros2 run student_pkg student_publisher</code></pre>
+            </div>
+
+            <p><strong>终端2 - 运行订阅者：</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>source install/setup.bash
+ros2 run student_pkg student_subscriber</code></pre>
+            </div>
+
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-custom-topic-run.png" alt="话题通信测试">
+            </div>
+
+            <h4>3. 测试服务通信（自定义服务）</h4>
+            <p><strong>终端1 - 运行服务端：</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>source install/setup.bash
+ros2 run student_pkg student_server</code></pre>
+            </div>
+
+            <p><strong>终端2 - 运行客户端：</strong></p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>source install/setup.bash
+ros2 run student_pkg student_client</code></pre>
+            </div>
+
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-custom-service-run.png" alt="服务通信测试">
+            </div>
+
+            <h4>4. 使用命令行工具验证</h4>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code># 查看话题列表
+ros2 topic list
+
+# 查看话题信息
+ros2 topic info /student_info
+
+# 手动发布消息
+ros2 topic pub /student_info student_interfaces/msg/Student "{name: '测试', age: 22, height: 170.0, grade: '一年级', is_graduated: false}"
+
+# 查看服务列表
+ros2 service list
+
+# 手动调用服务
+ros2 service call /get_student_info student_interfaces/srv/StudentInfo "{student_id: '002'}"</code></pre>
+            </div>
+        </section>
+
+        <!-- 接口类型速查表 -->
+        <section id="reference">
+            <h2>接口类型速查表</h2>
+
+            <h3>常用基本类型</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>Python 对应类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>bool</code></td>
+                            <td><code>bool</code></td>
+                            <td>布尔值</td>
+                        </tr>
+                        <tr>
+                            <td><code>byte</code></td>
+                            <td><code>int</code></td>
+                            <td>字节</td>
+                        </tr>
+                        <tr>
+                            <td><code>int8/16/32/64</code></td>
+                            <td><code>int</code></td>
+                            <td>有符号整数</td>
+                        </tr>
+                        <tr>
+                            <td><code>uint8/16/32/64</code></td>
+                            <td><code>int</code></td>
+                            <td>无符号整数</td>
+                        </tr>
+                        <tr>
+                            <td><code>float32/64</code></td>
+                            <td><code>float</code></td>
+                            <td>浮点数</td>
+                        </tr>
+                        <tr>
+                            <td><code>string</code></td>
+                            <td><code>str</code></td>
+                            <td>字符串</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>特殊类型</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>类型[]</code></td>
+                            <td>动态数组，如 <code>int32[]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>类型[N]</code></td>
+                            <td>固定长度数组，如 <code>float64[3]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>Header</code></td>
+                            <td>ROS 标准头（时间戳、坐标系）</td>
+                        </tr>
+                        <tr>
+                            <td><code>其他包/消息</code></td>
+                            <td>嵌套消息，如 <code>geometry_msgs/msg/Pose</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <strong>最佳实践</strong>
+                <ul>
+                    <li>接口包命名建议以 <code>_interfaces</code> 结尾</li>
+                    <li>复杂的消息可以拆分为多个小消息组合使用</li>
+                    <li>添加注释提高接口可读性</li>
+                    <li>遵循 ROS 2 命名规范（小写字母、下划线分隔）</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Navigation Links -->
+        <div class="nav-links">
+            <a href="ros2_service_communication.html" class="nav-prev">
+                <span class="arrow">←</span>
+                上一篇：服务通信
+            </a>
+            <a href="ros2_action.html" class="nav-next">
+               下一篇：动作
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // Copy button functionality
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const pre = this.closest('.code-wrapper').querySelector('pre');
+                const code = pre.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    this.textContent = '已复制';
+                    this.classList.add('copied');
+                    setTimeout(() => {
+                        this.textContent = '复制';
+                        this.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

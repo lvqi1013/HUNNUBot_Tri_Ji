@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS2 话题通信 - 发布者与订阅者</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --code-bg:     #14161E;
+            --code-text:   #D6D9E0;
+            --code-header: #1E2130;
+            --code-muted:  #6B7280;
+            --danger-bg:   #FDF2F2;
+            --danger-border:#FBC4C4;
+            --danger-text:  #9B1C1C;
+            --info-bg:     #F5F3F0;
+            --info-border: #E3DED6;
+            --info-text:   #3E4A5C;
+            --success:     #10B981;
+            --font-display: "DM Serif Display", "Noto Serif CJK SC", serif;
+            --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-mono:    "JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+            --radius:       6px;
+            --transition:   0.25s cubic-bezier(.4,0,.2,1);
+        }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+        body {
+            font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+            color: var(--ink-deep); background: var(--paper); -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed; width: 270px; height: 100vh; left: 0; top: 0;
+            background: var(--ink-deep); color: rgba(255,255,255,.85);
+            padding: 32px 22px; overflow-y: auto; z-index: 100;
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+        .sidebar-title {
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+            color: #fff; margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
+        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-item { margin-bottom: 4px; }
+        .sidebar-link {
+            display: block; padding: 7px 12px; color: rgba(255,255,255,.55);
+            text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+            transition: all var(--transition); border-left: 2px solid transparent;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; border-left-color: rgba(255,255,255,.2); }
+        .sidebar-link.active { background: rgba(242,103,34,.12); color: var(--signal); border-left-color: var(--signal); }
+
+        /* Main Content */
+        .main-content { margin-left: 270px; padding: 48px 56px 64px; max-width: 1060px; }
+
+        /* Header Banner */
+        .header-banner {
+            background: var(--ink-deep); color: white; padding: 44px 40px;
+            border-radius: var(--radius); margin-bottom: 40px; position: relative; overflow: hidden;
+        }
+        .header-banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,.01) 39px, rgba(255,255,255,.01) 41px, transparent 41px) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+        }
+        .header-banner h1 { position: relative; font-family: var(--font-display); font-size: 2rem; font-weight: 400; letter-spacing: 0.03em; margin-bottom: 8px; }
+        .header-banner p { position: relative; font-size: 1rem; opacity: 0.6; font-weight: 400; }
+
+        /* Sections */
+        section { background: var(--surface); padding: 32px 36px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--stone); }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--ink-deep); margin: 0 0 20px 0; padding-left: 14px; border-left: 3px solid var(--signal); letter-spacing: 0.02em; line-height: 1.3; }
+        h3 { font-size: 1.05rem; font-weight: 650; color: var(--ink-deep); margin: 24px 0 10px; letter-spacing: 0.01em; }
+        h4 { font-size: 0.95rem; font-weight: 650; color: var(--steel); margin: 18px 0 8px; }
+        p { margin: 0 0 14px; color: var(--steel); }
+        ul, ol { margin: 12px 0; padding-left: 24px; }
+        ul li, ol li { margin-bottom: 6px; color: var(--steel); }
+
+        /* Inline Code */
+        code:not(pre code) { font-family: var(--font-mono); background: var(--tag-bg); color: #C2410C; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: 500; }
+
+        /* Code Blocks */
+        .code-wrapper { margin: 16px 0; border-radius: var(--radius); overflow: hidden; }
+        .code-header { background: var(--code-header); color: var(--code-muted); padding: 6px 16px; font-size: 0.7rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.7); padding: 2px 10px; border-radius: 3px; font-size: 0.68rem; cursor: pointer; transition: all var(--transition); font-family: var(--font-body); }
+        .copy-btn:hover { background: rgba(242,103,34,.25); border-color: var(--signal); color: var(--signal); }
+        .copy-btn.copied { background: var(--success); border-color: var(--success); color: #fff; }
+        pre { margin: 0; padding: 16px 18px; background: var(--code-bg); color: var(--code-text); font-family: var(--font-mono); font-size: 0.88rem; overflow-x: auto; line-height: 1.65; }
+
+        /* Alert Boxes */
+        .danger-box { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .danger-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .info-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+
+        /* Tables */
+        .table-container { overflow-x: auto; margin: 20px 0; border: 1px solid var(--stone); border-radius: var(--radius); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+        th { background: var(--paper); color: var(--steel); font-weight: 600; padding: 12px 16px; border-bottom: 2px solid var(--stone); }
+        td { padding: 10px 16px; border-bottom: 1px solid var(--stone); color: var(--steel); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--paper); }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 40px; padding: 20px 0; border-top: 1px solid var(--stone);
+        }
+        .nav-links a {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; border-radius: var(--radius);
+            text-decoration: none; font-size: 0.95rem; font-weight: 500;
+            transition: all var(--transition);
+        }
+        .nav-prev { background: var(--paper); color: var(--steel); border: 1px solid var(--stone); }
+        .nav-prev:hover { background: var(--stone); color: var(--ink-deep); }
+        .nav-next { background: var(--signal); color: white; border: 1px solid var(--signal); }
+        .nav-next:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(242,103,34,.3); }
+        .nav-disabled { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
+
+        /* Images */
+        img { max-width: 100%; border-radius: var(--radius); margin: 12px 0; }
+        .img-center { text-align: center; margin: 16px 0; }
+        .img-center img { width: 85%; }
+
+        /* Concept Title */
+        .concept-title { text-align: center; font-size: 28px; color: #a915eeff; font-family: 'Courier New', Courier, monospace; margin: 24px 0; }
+
+        /* Flowchart */
+        .flowchart {
+            background: var(--paper); border: 1px solid var(--stone);
+            padding: 24px; border-radius: var(--radius); margin: 20px 0;
+            text-align: center;
+        }
+        .flowchart-row {
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            margin: 12px 0;
+        }
+        .flowchart-box {
+            background: var(--surface); border: 2px solid var(--signal);
+            padding: 12px 24px; border-radius: 8px; font-weight: 600;
+            color: var(--ink-deep);
+        }
+        .flowchart-arrow {
+            color: var(--signal); font-size: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { position: static; width: 100%; height: auto; padding: 20px; }
+            .main-content { margin-left: 0; padding: 24px 20px; }
+            .nav-links { flex-direction: column; gap: 12px; }
+            .nav-links a { width: 100%; justify-content: center; }
+        }
+    </style>
+    <link rel="stylesheet" href="../../assets/rig-inspired.css">
+    <link rel="stylesheet" href="../../assets/promise-docs.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-title">教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../promis/index.html">← 返回资料主页</a></li>
+            <li class="sidebar-item"><a href="ros2_basics.html" class="sidebar-link">01 - 基础概念</a></li>
+            <li class="sidebar-item"><a href="ros2_topic_communication.html" class="sidebar-link active">02 - 话题通信</a></li>
+            <li class="sidebar-item"><a href="ros2_service_communication.html" class="sidebar-link">03 - 服务通信</a></li>
+            <li class="sidebar-item"><a href="ros2_custom_interfaces.html" class="sidebar-link">04 - 自定义接口</a></li>
+            <li class="sidebar-item"><a href="ros2_action.html" class="sidebar-link">05 - 动作</a></li>
+            <li class="sidebar-item"><a href="ros2_parameters.html" class="sidebar-link">06 - 参数</a></li>
+            <li class="sidebar-item"><a href="ros2_launch.html" class="sidebar-link">07 - Launch文件</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header Banner -->
+        <header class="header-banner">
+            <h1>ROS2 话题通信</h1>
+            <p>发布者与订阅者 - 异步消息传递机制</p>
+        </header>
+
+        <!-- 话题概念 -->
+        <section id="topic-concept">
+            <h2>话题概念</h2>
+            <p>在 ROS 2 中，<strong>话题（Topic）</strong>是节点之间进行单向、异步消息通信的重要机制。</p>
+            
+            <p>话题数据传输的特性是从一个节点到另外一个节点，发送数据的对象称之为<strong>发布者</strong>，接收数据的对象称之为<strong>订阅者</strong>，每一个话题都需要有一个名字，传输的数据也需要有固定的数据类型。</p>
+
+            <ul>
+                <li>发布者负责向某个话题发送消息；</li>
+                <li>订阅者负责从某个话题接收消息；</li>
+                <li>只要<strong>话题名称一致</strong>且<strong>消息类型匹配</strong>，节点之间就可以完成通信。</li>
+            </ul>
+
+            <div class="flowchart">
+                <div class="flowchart-row">
+                    <div class="flowchart-box">发布者节点</div>
+                    <span class="flowchart-arrow">→</span>
+                    <div class="flowchart-box" style="border-color: #10B981;">话题 (Topic)</div>
+                    <span class="flowchart-arrow">→</span>
+                    <div class="flowchart-box">订阅者节点</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>示例</strong>
+                <p>发布者不断发送字符串 "Hello ROS 2"；订阅者监听同一个话题并打印收到的字符串。</p>
+                <p>显然，话题通信中需要至少两个节点，一个为发布者节点，一个为订阅者节点。</p>
+            </div>
+
+            <h3>话题通信的特点</h3>
+            <p>ROS 2 话题通信具有以下特点：</p>
+            <ul>
+                <li><strong>异步通信</strong>：发送方和接收方无需同步阻塞等待；</li>
+                <li><strong>一对多 / 多对多</strong>：一个发布者可对应多个订阅者，一个话题也可被多个发布者使用；</li>
+                <li><strong>解耦合</strong>：节点之间不需要直接知道对方程序细节，只需约定好话题名和消息类型。</li>
+            </ul>
+
+            <h3>异步的含义</h3>
+            <p>异步表示发布者发布消息后，订阅者并不一定立即接收到消息。即不是同步通信。</p>
+        </section>
+
+        <!-- Python 程序基本构成 -->
+        <section id="python-structure">
+            <h2>Python 发布者/订阅者程序的基本构成</h2>
+            <ul>
+                <li>导入 rclpy；</li>
+                <li>导入 Node 基类；</li>
+                <li>导入消息类型，例如 std_msgs.msg.String；</li>
+                <li>定义节点类；</li>
+                <li>在节点中创建 publisher 或 subscription；</li>
+                <li>编写回调函数；</li>
+                <li>在 main() 中初始化、创建节点并执行 spin()。</li>
+            </ul>
+        </section>
+
+        <!-- 实践：话题通信 -->
+        <section id="practice">
+            <h2>学习内容五：话题通信实践</h2>
+
+            <h3>（一）创建实验功能包</h3>
+            <p>进入工作空间 src 目录，创建 Python 功能包：</p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>ros2 pkg create learn_topic --build-type ament_python --dependencies rclpy std_msgs</code></pre>
+            </div>
+            <div class="info-box">
+                <strong>注意</strong>
+                <p>这里依赖多了一个 <code>std_msgs</code>，<code>std_msgs</code> 是 ROS 2 常用标准消息包。接下来的部分要使用 <code>String</code> 消息类型。</p>
+            </div>
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-17.png" alt="创建功能包">
+            </div>
+
+            <h3>（二）编写发布者节点</h3>
+            <p><strong>回调函数</strong>：用于处理订阅消息、服务请求、定时器触发等事件的核心机制。ROS 2 使用基于 rclcpp（C++）或 rclpy（Python）的异步执行模型，通过回调函数响应各种事件。主要有订阅者（Subscriber）回调，定时器（Timer）回调，服务（Service）回调。</p>
+            <div class="code-wrapper">
+                <div class="code-header">python</div>
+                <pre><code>import rclpy                                     # ROS2 Python接口库
+from rclpy.node import Node                      # ROS2 节点类
+from std_msgs.msg import String                  # 字符串消息类型
+
+"""
+创建一个发布者节点
+"""
+class PublisherNode(Node):
+    def __init__(self, node_name:str, topic_name: str):
+        super().__init__(node_name)
+        
+        # 由于节点时继承自Node类，在Node类中已经实现了通过create_publisher方法来创建一个发布者 
+        # msg_type表示传递的消息类型，topic表示话题通信的名称，对于发布者和订阅者要统一，qos_profile设置为10即可，不用深究
+        self.publisher_ = self.create_publisher(msg_type=String,topic=topic_name,qos_profile=10) # 创建发布者对象
+
+        # 创建一个定时器，表示每0.5秒执行一次timer_callback这个回调函数，也就是我们要实现的发布者要发布的消息都在回调函数中实现
+        self.timer_ = self.create_timer(timer_period_sec=0.5, callback = self.timer_callback)
+
+        self.i = 0
+
+    def timer_callback(self):                                     # 创建定时器周期执行的回调函数
+        msg = String()                                            # 创建一个String类型的消息对象
+        msg.data = f'Hello ROS 2: [{self.i}]'                     # 填充消息对象中的消息数据
+        self.publisher_.publish(msg)                               # 发布话题消息
+        self.get_logger().info('已发布消息: "%s"' % msg.data)     # 输出日志信息，提示已经完成话题发布
+        self.i += 1
+
+def main(args = None):
+    rclpy.init(args=args)
+    pub_node = PublisherNode(node_name='learn_topic',topic_name='topic_demo')
+    rclpy.spin(pub_node) # 启动节点
+    pub_node.destroy_node()
+    rclpy.shutdown()</code></pre>
+            </div>
+
+            <h3>（三）编写订阅者节点</h3>
+            <p>订阅者通过 <code>create_subscription()</code> 订阅话题，并在回调函数中处理接收到的消息。</p>
+            <div class="code-wrapper">
+                <div class="code-header">python</div>
+                <pre><code>import rclpy                      # ROS2 Python接口库
+from rclpy.node   import Node     # ROS2 节点类
+from std_msgs.msg import String   # ROS2标准定义的String消息
+
+"""
+创建一个订阅者节点
+"""
+class SubscriberNode(Node):
+    def __init__(self, node_name:str, topic_name: str):
+        super().__init__(node_name)                             # ROS2节点父类初始化
+        self.sub = self.create_subscription(
+            String, topic_name, self.listener_callback, 10) # 创建订阅者对象（消息类型、话题名、订阅者回调函数、队列长度）
+
+    def listener_callback(self, msg: String):                      # 创建回调函数，执行收到话题消息后对数据的处理  
+        self.get_logger().info(f'订阅到的数据：{msg.data}') # 输出日志信息，提示订阅收到的话题消息
+
+def main(args=None):
+    rclpy.init(args=args)
+    sub_node = SubscriberNode(node_name='sub',topic_name='learn_topic')
+    rclpy.spin(sub_node) # 启动节点
+    sub_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</code></pre>
+            </div>
+
+            <h3>（四）修改 setup.py</h3>
+            <div class="code-wrapper">
+                <div class="code-header">python</div>
+                <pre><code>entry_points={
+    'console_scripts': [
+        'publisher = learn_topic.node_pub:main',
+        'subscriber = learn_topic.node_sub:main',
+    ],
+},</code></pre>
+            </div>
+
+            <h3>（五）编译功能包</h3>
+            <p>返回工作空间根目录，编译并加载环境：</p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>colcon build
+source install/setup.bash</code></pre>
+            </div>
+
+            <h3>（六）运行发布者与订阅者节点</h3>
+            
+            <h4>1. 运行发布者节点</h4>
+            <p>打开第一个终端：</p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>cd lq_ws/
+source install/setup.bash
+ros2 run learn_topic publisher</code></pre>
+            </div>
+
+            <h4>2. 运行订阅者节点</h4>
+            <p>第一个终端不关闭，打开第二个终端：</p>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>cd lq_ws/
+source install/setup.bash
+ros2 run learn_topic subscriber</code></pre>
+            </div>
+            <p>运行结果如下：</p>
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-18.png" alt="运行结果">
+            </div>
+        </section>
+
+        <!-- 命令行工具验证 -->
+        <section id="cli-verification">
+            <h2>使用命令行工具验证话题通信</h2>
+
+            <h3>1. 查看当前话题列表</h3>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>ros2 topic list</code></pre>
+            </div>
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-19.png" alt="话题列表">
+            </div>
+
+            <h3>2. 查看话题消息内容</h3>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>ros2 topic echo /learn_topic # 注意替换为自己的消息名称</code></pre>
+            </div>
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-20.png" alt="话题消息">
+            </div>
+            <p>将持续显示发布者发送的消息内容。</p>
+
+            <h3>3. 查看话题信息</h3>
+            <div class="code-wrapper">
+                <div class="code-header">bash</div>
+                <pre><code>ros2 topic info /learn_topic</code></pre>
+            </div>
+            <p>可查看该话题的消息类型以及发布者/订阅者数量。</p>
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-21.png" alt="话题信息">
+            </div>
+        </section>
+
+        <!-- Navigation Links -->
+        <div class="nav-links">
+            <a href="ros2_basics.html" class="nav-prev">
+                <span class="arrow">←</span>
+                上一篇：基础概念
+            </a>
+            <a href="ros2_service_communication.html" class="nav-next">
+               下一篇：服务通信
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // Copy button functionality
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const pre = this.closest('.code-wrapper').querySelector('pre');
+                const code = pre.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    this.textContent = '已复制';
+                    this.classList.add('copied');
+                    setTimeout(() => {
+                        this.textContent = '复制';
+                        this.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

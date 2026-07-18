@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS2 学习教程 - 完整学习路径</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --code-bg:     #14161E;
+            --code-text:   #D6D9E0;
+            --code-header: #1E2130;
+            --code-muted:  #6B7280;
+            --danger-bg:   #FDF2F2;
+            --danger-border:#FBC4C4;
+            --danger-text:  #9B1C1C;
+            --info-bg:     #F5F3F0;
+            --info-border: #E3DED6;
+            --info-text:   #3E4A5C;
+            --success:     #10B981;
+            --font-display: "DM Serif Display", "Noto Serif CJK SC", serif;
+            --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-mono:    "JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+            --radius:       6px;
+            --transition:   0.25s cubic-bezier(.4,0,.2,1);
+            --ros-blue:     #22314E;
+            --ros-orange:   #F26722;
+        }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+        body {
+            font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+            color: var(--ink-deep); background: var(--paper); -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed; width: 270px; height: 100vh; left: 0; top: 0;
+            background: var(--ink-deep); color: rgba(255,255,255,.85);
+            padding: 32px 22px; overflow-y: auto; z-index: 100;
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+        .sidebar-title {
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+            color: #fff; margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
+        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-item { margin-bottom: 4px; }
+        .sidebar-link {
+            display: block; padding: 7px 12px; color: rgba(255,255,255,.55);
+            text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+            transition: all var(--transition); border-left: 2px solid transparent;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; border-left-color: rgba(255,255,255,.2); }
+        .sidebar-link.active { background: rgba(242,103,34,.12); color: var(--signal); border-left-color: var(--signal); }
+
+        /* Main Content */
+        .main-content { margin-left: 270px; padding: 48px 56px 64px; max-width: 1060px; }
+
+        /* Header Banner */
+        .header-banner {
+            background: linear-gradient(135deg, var(--ros-blue) 0%, var(--ink-deep) 100%);
+            color: white; padding: 48px 44px;
+            border-radius: var(--radius); margin-bottom: 40px; position: relative; overflow: hidden;
+        }
+        .header-banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,.02) 39px, rgba(255,255,255,.02) 41px, transparent 41px) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+        }
+        .header-banner h1 { position: relative; font-family: var(--font-display); font-size: 2.2rem; font-weight: 400; letter-spacing: 0.03em; margin-bottom: 12px; }
+        .header-banner p { position: relative; font-size: 1.05rem; opacity: 0.7; font-weight: 400; max-width: 600px; }
+        .header-banner .badge {
+            display: inline-block; background: var(--signal); color: white;
+            padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;
+            font-weight: 600; margin-top: 16px; letter-spacing: 0.05em;
+        }
+
+        /* Sections */
+        section { background: var(--surface); padding: 32px 36px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--stone); }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--ink-deep); margin: 0 0 20px 0; padding-left: 14px; border-left: 3px solid var(--signal); letter-spacing: 0.02em; line-height: 1.3; }
+        h3 { font-size: 1.05rem; font-weight: 650; color: var(--ink-deep); margin: 24px 0 10px; letter-spacing: 0.01em; }
+        p { margin: 0 0 14px; color: var(--steel); }
+
+        /* Learning Path Grid */
+        .learning-path {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px; margin-top: 24px;
+        }
+        .lesson-card {
+            background: var(--surface); border: 1px solid var(--stone);
+            border-radius: var(--radius); padding: 24px;
+            transition: all var(--transition); cursor: pointer;
+            position: relative; overflow: hidden;
+        }
+        .lesson-card:hover {
+            border-color: var(--signal); transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(242,103,34,.12);
+        }
+        .lesson-card::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0;
+            height: 3px; background: linear-gradient(90deg, var(--signal), #ff9a56);
+            transform: scaleX(0); transition: transform var(--transition);
+        }
+        .lesson-card:hover::before { transform: scaleX(1); }
+
+        .lesson-number {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; background: var(--paper);
+            border: 2px solid var(--stone); border-radius: 50%;
+            font-family: var(--font-mono); font-weight: 700; font-size: 0.9rem;
+            color: var(--steel); margin-bottom: 12px;
+        }
+        .lesson-card:hover .lesson-number {
+            background: var(--signal); border-color: var(--signal); color: white;
+        }
+        .lesson-card h4 {
+            font-size: 1.1rem; font-weight: 650; color: var(--ink-deep);
+            margin: 0 0 8px 0;
+        }
+        .lesson-card p {
+            font-size: 0.9rem; color: var(--steel); margin: 0;
+            line-height: 1.5;
+        }
+        .lesson-card .lesson-tag {
+            display: inline-block; margin-top: 12px;
+            padding: 3px 10px; background: var(--tag-bg);
+            border-radius: 12px; font-size: 0.75rem;
+            color: var(--steel); font-weight: 500;
+        }
+        .lesson-card a {
+            position: absolute; inset: 0;
+            z-index: 1;
+        }
+
+        /* Info Box */
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .info-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+
+        /* Progress Indicator */
+        .progress-section {
+            background: linear-gradient(135deg, #f8f6f2 0%, var(--paper) 100%);
+            padding: 24px 28px; margin-bottom: 32px;
+        }
+        .progress-bar {
+            display: flex; align-items: center; gap: 8px;
+            margin-top: 16px;
+        }
+        .progress-step {
+            flex: 1; height: 6px; background: var(--stone);
+            border-radius: 3px; position: relative;
+        }
+        .progress-step.completed { background: var(--success); }
+        .progress-step.current { background: var(--signal); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { position: static; width: 100%; height: auto; padding: 20px; }
+            .main-content { margin-left: 0; padding: 24px 20px; }
+            .learning-path { grid-template-columns: 1fr; }
+        }
+    </style>
+    <link rel="stylesheet" href="../../assets/rig-inspired.css">
+    <link rel="stylesheet" href="../../assets/promise-docs.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-title">教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../promis/index.html">← 返回资料主页</a></li>
+            <li class="sidebar-item"><a href="ros2_index.html" class="sidebar-link active">ROS2 教程索引</a></li>
+            <li class="sidebar-item"><a href="ros2_basics.html" class="sidebar-link">01 - 基础概念</a></li>
+            <li class="sidebar-item"><a href="ros2_topic_communication.html" class="sidebar-link">02 - 话题通信</a></li>
+            <li class="sidebar-item"><a href="ros2_service_communication.html" class="sidebar-link">03 - 服务通信</a></li>
+            <li class="sidebar-item"><a href="ros2_custom_interfaces.html" class="sidebar-link">04 - 自定义接口</a></li>
+            <li class="sidebar-item"><a href="ros2_action.html" class="sidebar-link">05 - 动作</a></li>
+            <li class="sidebar-item"><a href="ros2_parameters.html" class="sidebar-link">06 - 参数</a></li>
+            <li class="sidebar-item"><a href="ros2_launch.html" class="sidebar-link">07 - Launch文件</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header Banner -->
+        <header class="header-banner">
+            <h1>ROS2 学习教程</h1>
+            <p>从零开始掌握 ROS2 开发，涵盖工作空间、节点、话题、服务、动作、参数到 Launch 文件的完整学习路径。</p>
+            <span class="badge">ROS2 Jazzy Jalisco</span>
+        </header>
+
+        <!-- Introduction -->
+        <section>
+            <h2>学习路径概览</h2>
+            <p>本教程按照循序渐进的原则组织，从基础概念到高级特性，帮助你系统性地掌握 ROS2 开发技能。建议按照顺序学习，每个章节都是后续内容的基础。</p>
+
+            <div class="info-box">
+                <strong>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    学习建议
+                </strong>
+                <p>1. 确保已完成 WSL2 和 ROS2 Jazzy 的安装配置</p>
+                <p>2. 每个章节的代码示例建议亲手实践</p>
+                <p>3. 遇到问题多使用 ros2 命令行工具排查</p>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+            </div>
+        </section>
+
+        <!-- Learning Path -->
+        <section>
+            <h2>课程目录</h2>
+            <div class="learning-path">
+                <div class="lesson-card">
+                    <span class="lesson-number">01</span>
+                    <h4>基础概念</h4>
+                    <p>工作空间、功能包、节点的概念与创建，编写第一个 Hello World 节点。</p>
+                    <span class="lesson-tag">入门必学</span>
+                    <a href="ros2_basics.html"></a>
+                </div>
+
+                <div class="lesson-card">
+                    <span class="lesson-number">02</span>
+                    <h4>话题通信</h4>
+                    <p>发布者与订阅者的异步消息传递机制，实现节点间的单向数据流。</p>
+                    <span class="lesson-tag">核心机制</span>
+                    <a href="ros2_topic_communication.html"></a>
+                </div>
+
+                <div class="lesson-card">
+                    <span class="lesson-number">03</span>
+                    <h4>服务通信</h4>
+                    <p>客户端与服务端的同步请求-响应机制，适合一次性任务处理。</p>
+                    <span class="lesson-tag">核心机制</span>
+                    <a href="ros2_service_communication.html"></a>
+                </div>
+
+                <div class="lesson-card">
+                    <span class="lesson-number">04</span>
+                    <h4>自定义接口</h4>
+                    <p>创建自定义消息（msg）和服务（srv），扩展 ROS2 的数据表达能力。</p>
+                    <span class="lesson-tag">进阶内容</span>
+                    <a href="ros2_custom_interfaces.html"></a>
+                </div>
+
+                <div class="lesson-card">
+                    <span class="lesson-number">05</span>
+                    <h4>动作通信</h4>
+                    <p>适用于长时间任务的 Action 机制，支持进度反馈和任务取消。</p>
+                    <span class="lesson-tag">进阶内容</span>
+                    <a href="ros2_action.html"></a>
+                </div>
+
+                <div class="lesson-card">
+                    <span class="lesson-number">06</span>
+                    <h4>参数系统</h4>
+                    <p>节点的运行时配置机制，实现配置与逻辑分离，提高代码复用性。</p>
+                    <span class="lesson-tag">进阶内容</span>
+                    <a href="ros2_parameters.html"></a>
+                </div>
+
+                <div class="lesson-card">
+                    <span class="lesson-number">07</span>
+                    <h4>Launch 文件</h4>
+                    <p>系统启动脚本，自动启动和配置多个节点，简化复杂系统的运行流程。</p>
+                    <span class="lesson-tag">工程实践</span>
+                    <a href="ros2_launch.html"></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Knowledge Map -->
+        <section>
+            <h2>知识点关系图</h2>
+            <p>以下图表展示了各章节之间的依赖关系，帮助你理解学习顺序的重要性：</p>
+            <div style="background: var(--paper); padding: 20px; border-radius: var(--radius); margin-top: 16px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--steel); line-height: 1.8;">
+                <div style="color: var(--signal); font-weight: 600; margin-bottom: 8px;">基础层</div>
+                <div style="padding-left: 20px;">01. 基础概念 → 工作空间 / 功能包 / 节点</div>
+                <div style="margin-top: 12px; color: var(--signal); font-weight: 600;">通信层</div>
+                <div style="padding-left: 20px;">02. 话题通信 ─┐</div>
+                <div style="padding-left: 20px;">03. 服务通信 ─┼→ 需要 01 作为基础</div>
+                <div style="padding-left: 20px;">04. 自定义接口 ┘</div>
+                <div style="margin-top: 12px; color: var(--signal); font-weight: 600;">进阶层</div>
+                <div style="padding-left: 20px;">05. 动作 → 需要 02、03、04 作为基础</div>
+                <div style="padding-left: 20px;">06. 参数 → 可独立学习</div>
+                <div style="margin-top: 12px; color: var(--signal); font-weight: 600;">应用层</div>
+                <div style="padding-left: 20px;">07. Launch文件 → 综合应用以上所有知识</div>
+            </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section>
+            <h2>快速导航</h2>
+            <p>点击下方卡片开始你的 ROS2 学习之旅：</p>
+            <div class="learning-path">
+                <div class="lesson-card" style="grid-column: span 2;">
+                    <span class="lesson-number" style="background: var(--signal); color: white; border-color: var(--signal);">→</span>
+                    <h4>开始学习第一课</h4>
+                    <p>从基础概念开始，逐步掌握 ROS2 开发技能。</p>
+                    <a href="ros2_basics.html"></a>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

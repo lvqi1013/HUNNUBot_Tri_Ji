@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS2 动作通信 - 长时间任务的执行</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink-deep:    #0B0D14;
+            --paper:       #F9F7F3;
+            --surface:     #FFFFFF;
+            --signal:      #F26722;
+            --steel:       #4A5568;
+            --stone:       #E3DED6;
+            --tag-bg:      #EDF0F3;
+            --code-bg:     #14161E;
+            --code-text:   #D6D9E0;
+            --code-header: #1E2130;
+            --code-muted:  #6B7280;
+            --danger-bg:   #FDF2F2;
+            --danger-border:#FBC4C4;
+            --danger-text:  #9B1C1C;
+            --info-bg:     #F5F3F0;
+            --info-border: #E3DED6;
+            --info-text:   #3E4A5C;
+            --success:     #10B981;
+            --font-display: "DM Serif Display", "Noto Serif CJK SC", serif;
+            --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-mono:    "JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+            --radius:       6px;
+            --transition:   0.25s cubic-bezier(.4,0,.2,1);
+        }
+
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+        body {
+            font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+            color: var(--ink-deep); background: var(--paper); -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed; width: 270px; height: 100vh; left: 0; top: 0;
+            background: var(--ink-deep); color: rgba(255,255,255,.85);
+            padding: 32px 22px; overflow-y: auto; z-index: 100;
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+        .sidebar-title {
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+            color: #fff; margin-bottom: 24px; padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em;
+        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-item { margin-bottom: 4px; }
+        .sidebar-link {
+            display: block; padding: 7px 12px; color: rgba(255,255,255,.55);
+            text-decoration: none; border-radius: 4px; font-size: 0.85rem;
+            transition: all var(--transition); border-left: 2px solid transparent;
+        }
+        .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; border-left-color: rgba(255,255,255,.2); }
+        .sidebar-link.active { background: rgba(242,103,34,.12); color: var(--signal); border-left-color: var(--signal); }
+
+        /* Main Content */
+        .main-content { margin-left: 270px; padding: 48px 56px 64px; max-width: 1060px; }
+
+        /* Header Banner */
+        .header-banner {
+            background: var(--ink-deep); color: white; padding: 44px 40px;
+            border-radius: var(--radius); margin-bottom: 40px; position: relative; overflow: hidden;
+        }
+        .header-banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 39px, rgba(255,255,255,.01) 39px, rgba(255,255,255,.01) 41px, transparent 41px) 0 0 / 113px 113px;
+            mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 70%);
+        }
+        .header-banner h1 { position: relative; font-family: var(--font-display); font-size: 2rem; font-weight: 400; letter-spacing: 0.03em; margin-bottom: 8px; }
+        .header-banner p { position: relative; font-size: 1rem; opacity: 0.6; font-weight: 400; }
+
+        /* Sections */
+        section { background: var(--surface); padding: 32px 36px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--stone); }
+        h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--ink-deep); margin: 0 0 20px 0; padding-left: 14px; border-left: 3px solid var(--signal); letter-spacing: 0.02em; line-height: 1.3; }
+        h3 { font-size: 1.05rem; font-weight: 650; color: var(--ink-deep); margin: 24px 0 10px; letter-spacing: 0.01em; }
+        h4 { font-size: 0.95rem; font-weight: 650; color: var(--steel); margin: 18px 0 8px; }
+        p { margin: 0 0 14px; color: var(--steel); }
+        ul, ol { margin: 12px 0; padding-left: 24px; }
+        ul li, ol li { margin-bottom: 6px; color: var(--steel); }
+
+        /* Inline Code */
+        code:not(pre code) { font-family: var(--font-mono); background: var(--tag-bg); color: #C2410C; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: 500; }
+
+        /* Code Blocks */
+        .code-wrapper { margin: 16px 0; border-radius: var(--radius); overflow: hidden; }
+        .code-header { background: var(--code-header); color: var(--code-muted); padding: 6px 16px; font-size: 0.7rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.7); padding: 2px 10px; border-radius: 3px; font-size: 0.68rem; cursor: pointer; transition: all var(--transition); font-family: var(--font-body); }
+        .copy-btn:hover { background: rgba(242,103,34,.25); border-color: var(--signal); color: var(--signal); }
+        .copy-btn.copied { background: var(--success); border-color: var(--success); color: #fff; }
+        pre { margin: 0; padding: 16px 18px; background: var(--code-bg); color: var(--code-text); font-family: var(--font-mono); font-size: 0.88rem; overflow-x: auto; line-height: 1.65; }
+
+        /* Alert Boxes */
+        .danger-box { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .danger-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+        .info-box { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); padding: 16px 20px; border-radius: var(--radius); margin: 20px 0; }
+        .info-box strong { display: flex; align-items: center; gap: 6px; font-size: 1.02rem; }
+
+        /* Tables */
+        .table-container { overflow-x: auto; margin: 20px 0; border: 1px solid var(--stone); border-radius: var(--radius); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+        th { background: var(--paper); color: var(--steel); font-weight: 600; padding: 12px 16px; border-bottom: 2px solid var(--stone); }
+        td { padding: 10px 16px; border-bottom: 1px solid var(--stone); color: var(--steel); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--paper); }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 40px; padding: 20px 0; border-top: 1px solid var(--stone);
+        }
+        .nav-links a {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; border-radius: var(--radius);
+            text-decoration: none; font-size: 0.95rem; font-weight: 500;
+            transition: all var(--transition);
+        }
+        .nav-prev { background: var(--paper); color: var(--steel); border: 1px solid var(--stone); }
+        .nav-prev:hover { background: var(--stone); color: var(--ink-deep); }
+        .nav-next { background: var(--signal); color: white; border: 1px solid var(--signal); }
+        .nav-next:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(242,103,34,.3); }
+        .nav-disabled { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
+
+        /* Images */
+        img { max-width: 100%; border-radius: var(--radius); margin: 12px 0; }
+        .img-center { text-align: center; margin: 16px 0; }
+        .img-center img { width: 85%; }
+
+        /* Comparison Table */
+        .comparison-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px; margin: 20px 0;
+        }
+        .comparison-card {
+            background: var(--paper); border: 1px solid var(--stone);
+            padding: 20px; border-radius: var(--radius);
+        }
+        .comparison-card h4 {
+            margin-top: 0; color: var(--signal);
+            border-bottom: 2px solid var(--stone);
+            padding-bottom: 10px;
+        }
+
+        /* Flowchart */
+        .flowchart {
+            background: var(--paper); border: 1px solid var(--stone);
+            padding: 24px; border-radius: var(--radius); margin: 20px 0;
+            text-align: center;
+        }
+        .flowchart-row {
+            display: flex; justify-content: center; align-items: center; gap: 16px;
+            margin: 12px 0; flex-wrap: wrap;
+        }
+        .flowchart-box {
+            background: var(--surface); border: 2px solid var(--signal);
+            padding: 12px 24px; border-radius: 8px; font-weight: 600;
+            color: var(--ink-deep);
+        }
+        .flowchart-arrow {
+            color: var(--signal); font-size: 1.5rem;
+        }
+
+        /* Action Flow Diagram */
+        .action-flow {
+            background: var(--paper); border: 1px solid var(--stone);
+            padding: 24px; border-radius: var(--radius); margin: 20px 0;
+        }
+        .action-flow-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 16px 0; padding: 12px;
+            background: var(--surface); border-radius: var(--radius);
+        }
+        .action-flow-item {
+            text-align: center; flex: 1;
+        }
+        .action-flow-item h5 {
+            font-size: 0.9rem; color: var(--signal); margin-bottom: 4px;
+        }
+        .action-flow-item p {
+            font-size: 0.85rem; margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { position: static; width: 100%; height: auto; padding: 20px; }
+            .main-content { margin-left: 0; padding: 24px 20px; }
+            .nav-links { flex-direction: column; gap: 12px; }
+            .nav-links a { width: 100%; justify-content: center; }
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <link rel="stylesheet" href="../../assets/rig-inspired.css">
+    <link rel="stylesheet" href="../../assets/promise-docs.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-title">教程目录</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a class="sidebar-link" href="../../promis/index.html">← 返回资料主页</a></li>
+            <li class="sidebar-item"><a href="ros2_basics.html" class="sidebar-link">01 - 基础概念</a></li>
+            <li class="sidebar-item"><a href="ros2_topic_communication.html" class="sidebar-link">02 - 话题通信</a></li>
+            <li class="sidebar-item"><a href="ros2_service_communication.html" class="sidebar-link">03 - 服务通信</a></li>
+            <li class="sidebar-item"><a href="ros2_custom_interfaces.html" class="sidebar-link">04 - 自定义接口</a></li>
+            <li class="sidebar-item"><a href="ros2_action.html" class="sidebar-link active">05 - 动作</a></li>
+            <li class="sidebar-item"><a href="ros2_parameters.html" class="sidebar-link">06 - 参数</a></li>
+            <li class="sidebar-item"><a href="ros2_launch.html" class="sidebar-link">07 - Launch文件</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header Banner -->
+        <header class="header-banner">
+            <h1>ROS2 动作通信</h1>
+            <p>长时间任务的执行 - 异步目标-反馈-结果机制</p>
+        </header>
+
+        <!-- 动作概念 -->
+        <section id="action-concept">
+            <h2>动作概念</h2>
+
+            <h3>1. 什么是动作（Action）</h3>
+            <p>在 ROS 2 中，<strong>动作（Action）</strong>是一种用于执行长时间运行任务的通信机制。它结合了话题和服务的特点，提供了一种更灵活的异步通信方式。</p>
+
+            <p>动作适合处理以下类型的任务：</p>
+            <ul>
+                <li>机器人导航到目标位置（可能需要几秒到几分钟）</li>
+                <li>机械臂执行复杂的运动轨迹</li>
+                <li>执行需要持续反馈的长时间计算任务</li>
+                <li>需要能够被中途取消的任务</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>动作的核心特点</strong>
+                <ul>
+                    <li><strong>目标（Goal）</strong>：客户端发送的任务目标</li>
+                    <li><strong>反馈（Feedback）</strong>：服务端定期发送的任务进度信息</li>
+                    <li><strong>结果（Result）</strong>：任务完成后返回的最终结果</li>
+                </ul>
+            </div>
+
+            <h3>2. Action 与 Topic、Service 的区别</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>话题（Topic）</h4>
+                    <ul>
+                        <li>单向、异步通信</li>
+                        <li>持续数据流</li>
+                        <li>发布者-订阅者模式</li>
+                        <li>无请求-响应机制</li>
+                        <li>适合传感器数据流</li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h4>服务（Service）</h4>
+                    <ul>
+                        <li>双向、同步通信</li>
+                        <li>一次请求-一次响应</li>
+                        <li>客户端-服务端模式</li>
+                        <li>阻塞式等待结果</li>
+                        <li>适合快速计算任务</li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h4>动作（Action）</h4>
+                    <ul>
+                        <li>双向、异步通信</li>
+                        <li>目标-反馈-结果</li>
+                        <li>客户端-服务端模式</li>
+                        <li>可取消、可监控进度</li>
+                        <li>适合长时间任务</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flowchart">
+                <div class="flowchart-row">
+                    <div class="flowchart-box" style="background: var(--tag-bg);">客户端发送目标</div>
+                    <span class="flowchart-arrow">→</span>
+                    <div class="flowchart-box" style="border-color: #10B981;">服务端执行任务</div>
+                    <span class="flowchart-arrow">↔</span>
+                    <div class="flowchart-box" style="background: var(--tag-bg);">持续发送反馈</div>
+                </div>
+                <div class="flowchart-row">
+                    <div class="flowchart-box" style="border-color: var(--signal);">返回最终结果</div>
+                </div>
+            </div>
+
+            <h3>3. Action 的客户端与服务端</h3>
+            <p>在 ROS 2 动作通信中：</p>
+            <ul>
+                <li><strong>Action Server（服务端）</strong>：负责接收目标请求，执行任务，定期发布反馈，返回最终结果</li>
+                <li><strong>Action Client（客户端）</strong>：负责发送目标请求，接收反馈和结果，可以取消正在执行的任务</li>
+            </ul>
+
+            <div class="action-flow">
+                <div class="action-flow-row">
+                    <div class="action-flow-item">
+                        <h5>客户端</h5>
+                        <p>发送目标请求</p>
+                    </div>
+                    <div class="action-flow-item">
+                        <h5>→</h5>
+                    </div>
+                    <div class="action-flow-item">
+                        <h5>服务端</h5>
+                        <p>接收并执行</p>
+                    </div>
+                </div>
+                <div class="action-flow-row">
+                    <div class="action-flow-item">
+                        <h5>服务端</h5>
+                        <p>定期发布反馈</p>
+                    </div>
+                    <div class="action-flow-item">
+                        <h5>→</h5>
+                    </div>
+                    <div class="action-flow-item">
+                        <h5>客户端</h5>
+                        <p>接收进度更新</p>
+                    </div>
+                </div>
+                <div class="action-flow-row">
+                    <div class="action-flow-item">
+                        <h5>服务端</h5>
+                        <p>返回最终结果</p>
+                    </div>
+                    <div class="action-flow-item">
+                        <h5>→</h5>
+                    </div>
+                    <div class="action-flow-item">
+                        <h5>客户端</h5>
+                        <p>处理结果</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>4. .action 文件结构</h3>
+            <p>动作接口通过 <code>.action</code> 文件定义，包含三个部分：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>action</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code># 目标（Goal）部分 - 客户端发送给服务端的请求数据
+int64 target_count
+---
+# 结果（Result）部分 - 任务完成后返回的数据
+int64 final_count
+bool success
+string message
+---
+# 反馈（Feedback）部分 - 任务执行过程中的进度信息
+int64 current_count
+float64 progress</code></pre>
+            </div>
+
+            <p><code>.action</code> 文件使用 <code>---</code> 分隔符来区分三个部分：</p>
+            <ul>
+                <li>第一部分（Goal）：定义目标请求数据</li>
+                <li>第二部分（Result）：定义最终结果数据</li>
+                <li>第三部分（Feedback）：定义实时反馈数据</li>
+            </ul>
+        </section>
+
+        <!-- 动作实践 -->
+        <section id="practice">
+            <h2>学习内容：动作实践</h2>
+
+            <h3>（一）创建 Action 接口包</h3>
+            <p>首先创建一个用于存放自定义动作接口的功能包：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>cd ~/ros2_ws/src
+ros2 pkg create --build-type ament_cmake action_interfaces</code></pre>
+            </div>
+            <div class="info-box">
+                <strong>注意</strong>
+                <p>自定义接口包通常使用 <code>ament_cmake</code> 构建类型，而不是 <code>ament_python</code>。</p>
+            </div>
+
+            <h3>（二）创建 action 目录</h3>
+            <p>在功能包根目录下创建 <code>action</code> 目录：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>cd action_interfaces
+mkdir action</code></pre>
+            </div>
+
+            <h3>（三）编写 Countdown.action 自定义动作接口</h3>
+            <p>在 <code>action</code> 目录下创建 <code>Countdown.action</code> 文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>Countdown.action</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code># Goal - 目标：设置倒计时的起始数字
+int64 target_number
+---
+# Result - 结果：倒计时完成后的信息
+bool success
+string message
+---
+# Feedback - 反馈：当前倒计时的数字
+int64 current_number</code></pre>
+            </div>
+
+            <h3>（四）修改 CMakeLists.txt 和 package.xml</h3>
+
+            <h4>1. 修改 CMakeLists.txt</h4>
+            <p>在 <code>CMakeLists.txt</code> 中添加动作接口的编译配置：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>cmake</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>cmake_minimum_required(VERSION 3.8)
+project(action_interfaces)
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+# 添加动作接口文件的声明
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "action/Countdown.action"
+)
+
+# 添加依赖
+ament_export_dependencies(rosidl_default_runtime)
+
+ament_package()</code></pre>
+            </div>
+
+            <h4>2. 修改 package.xml</h4>
+            <p>在 <code>package.xml</code> 中添加必要的依赖：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>xml</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>&lt;?xml version="1.0"?&gt;
+&lt;package format="3"&gt;
+  &lt;name&gt;action_interfaces&lt;/name&gt;
+  &lt;version&gt;0.0.0&lt;/version&gt;
+  &lt;description&gt;Custom action interfaces package&lt;/description&gt;
+  &lt;maintainer email="user@todo.todo"&gt;user&lt;/maintainer&gt;
+  &lt;license&gt;TODO: License declaration&lt;/license&gt;
+
+  &lt;buildtool_depend&gt;ament_cmake&lt;/buildtool_depend&gt;
+
+  &lt;build_depend&gt;rosidl_default_generators&lt;/build_depend&gt;
+  &lt;exec_depend&gt;rosidl_default_runtime&lt;/exec_depend&gt;
+  &lt;member_of_group&gt;rosidl_interface_packages&lt;/member_of_group&gt;
+
+  &lt;export&gt;
+    &lt;build_type&gt;ament_cmake&lt;/build_type&gt;
+  &lt;/export&gt;
+&lt;/package&gt;</code></pre>
+            </div>
+
+            <h3>（五）创建使用动作接口的 Python 功能包</h3>
+            <p>创建一个新的 Python 功能包来实现动作的客户端和服务端：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>cd ~/ros2_ws/src
+ros2 pkg create --build-type ament_python learn_action --dependencies rclpy action_interfaces</code></pre>
+            </div>
+
+            <h3>（六）编写 Action Server 节点</h3>
+            <p>在 <code>learn_action</code> 功能包下创建 <code>action_server.py</code> 文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import rclpy                                       # ROS2 Python接口库
+from rclpy.node import Node                        # ROS2 节点类
+from rclpy.action import ActionServer              # ROS2 动作服务端类
+from rclpy.action.server import ServerGoalHandle   # 目标处理句柄
+from rclpy.callback_groups import ReentrantCallbackGroup  # 回调组，允许多线程回调
+
+# 导入自定义动作接口
+from action_interfaces.action import Countdown
+
+import time                                        # 时间模块，用于倒计时延迟
+
+class CountdownActionServer(Node):
+    """
+    倒计时动作服务端节点
+    接收目标数字，从该数字开始倒计时到0，期间发送反馈
+    """
+    
+    def __init__(self, node_name='countdown_action_server'):
+        super().__init__(node_name)
+        
+        # 创建回调组，允许多个回调同时执行（重要：防止阻塞）
+        self._callback_group = ReentrantCallbackGroup()
+        
+        # 创建动作服务端
+        # 参数：动作类型、动作名称、执行回调函数
+        self._action_server = ActionServer(
+            self,
+            Countdown,                          # 动作接口类型
+            'countdown',                        # 动作名称
+            self.execute_callback,              # 执行回调函数
+            callback_group=self._callback_group # 指定回调组
+        )
+        
+        self.get_logger().info('倒计时动作服务端已启动！')
+
+    def execute_callback(self, goal_handle: ServerGoalHandle):
+        """
+        动作执行回调函数
+        当收到目标请求时被调用，执行倒计时逻辑
+        
+        参数:
+            goal_handle: 目标句柄，包含请求数据和控制方法
+        """
+        self.get_logger().info('收到倒计时目标请求...')
+        
+        # 获取目标数据
+        target_number = goal_handle.request.target_number
+        
+        # 验证目标数字是否有效
+        if target_number <= 0:
+            # 如果目标无效，中止任务
+            goal_handle.abort()
+            result = Countdown.Result()
+            result.success = False
+            result.message = f'目标数字无效: {target_number}，必须大于0'
+            return result
+        
+        # 目标有效，开始执行
+        self.get_logger().info(f'开始倒计时，从 {target_number} 到 0')
+        
+        # 创建反馈消息对象
+        feedback_msg = Countdown.Feedback()
+        
+        # 创建结果消息对象
+        result = Countdown.Result()
+        
+        # 执行倒计时循环
+        current_number = target_number
+        while current_number >= 0:
+            # 检查是否被客户端取消
+            if goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                self.get_logger().info('目标被取消')
+                result.success = False
+                result.message = '倒计时被取消'
+                return result
+            
+            # 发送反馈
+            feedback_msg.current_number = current_number
+            goal_handle.publish_feedback(feedback_msg)
+            self.get_logger().info(f'反馈: 当前数字 {current_number}')
+            
+            # 倒计时减一
+            current_number -= 1
+            
+            # 延迟1秒，模拟任务执行
+            time.sleep(1)
+        
+        # 倒计时完成，返回成功结果
+        goal_handle.succeed()
+        result.success = True
+        result.message = f'倒计时完成！从 {target_number} 倒数到 0'
+        
+        self.get_logger().info(result.message)
+        
+        return result
+
+def main(args=None):
+    """主函数"""
+    # 初始化ROS2 Python接口
+    rclpy.init(args=args)
+    
+    # 创建动作服务端节点
+    action_server = CountdownActionServer()
+    
+    try:
+        # 循环等待节点退出
+        rclpy.spin(action_server)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # 销毁节点
+        action_server.destroy_node()
+        # 关闭ROS2 Python接口
+        rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</code></pre>
+            </div>
+
+            <h3>（七）编写 Action Client 节点</h3>
+            <p>在 <code>learn_action</code> 功能包下创建 <code>action_client.py</code> 文件：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import rclpy                                       # ROS2 Python接口库
+from rclpy.node import Node                        # ROS2 节点类
+from rclpy.action import ActionClient              # ROS2 动作客户端类
+
+# 导入自定义动作接口
+from action_interfaces.action import Countdown
+
+class CountdownActionClient(Node):
+    """
+    倒计时动作客户端节点
+    发送倒计时目标请求，接收反馈和结果
+    """
+    
+    def __init__(self, node_name='countdown_action_client'):
+        super().__init__(node_name)
+        
+        # 创建动作客户端
+        # 参数：节点对象、动作类型、动作名称
+        self._action_client = ActionClient(
+            self,
+            Countdown,      # 动作接口类型
+            'countdown'     # 动作名称（与服务端一致）
+        )
+        
+        self.get_logger().info('倒计时动作客户端已启动！')
+
+    def send_goal(self, target_number):
+        """
+        发送目标请求
+        
+        参数:
+            target_number: 目标数字，从这里开始倒计时
+        """
+        self.get_logger().info(f'准备发送目标: 从 {target_number} 开始倒计时')
+        
+        # 等待动作服务端启动
+        # timeout_sec: 等待超时时间（秒）
+        if not self._action_client.wait_for_server(timeout_sec=5.0):
+            self.get_logger().error('动作服务端未启动！')
+            return
+        
+        self.get_logger().info('动作服务端已连接')
+        
+        # 创建目标请求对象
+        goal_msg = Countdown.Goal()
+        goal_msg.target_number = target_number
+        
+        self.get_logger().info(f'发送目标请求...')
+        
+        # 异步发送目标请求
+        # 返回一个 Future 对象，用于获取结果
+        send_goal_future = self._action_client.send_goal_async(
+            goal_msg,
+            feedback_callback=self.feedback_callback  # 设置反馈回调函数
+        )
+        
+        # 注册结果回调（当目标被接受或拒绝时触发）
+        send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        """
+        目标响应回调函数
+        当服务端接受或拒绝目标时被调用
+        
+        参数:
+            future: 包含目标句柄的Future对象
+        """
+        goal_handle = future.result()
+        
+        # 检查目标是否被接受
+        if not goal_handle.accepted:
+            self.get_logger().error('目标被拒绝')
+            return
+        
+        self.get_logger().info('目标已被接受')
+        
+        # 异步获取结果
+        get_result_future = goal_handle.get_result_async()
+        
+        # 注册结果回调
+        get_result_future.add_done_callback(self.get_result_callback)
+
+    def feedback_callback(self, feedback_msg):
+        """
+        反馈回调函数
+        当收到服务端的反馈时被调用
+        
+        参数:
+            feedback_msg: 反馈消息对象
+        """
+        # 获取反馈数据
+        feedback = feedback_msg.feedback
+        self.get_logger().info(f'收到反馈: 当前数字 {feedback.current_number}')
+
+    def get_result_callback(self, future):
+        """
+        结果回调函数
+        当任务完成并返回结果时被调用
+        
+        参数:
+            future: 包含结果的Future对象
+        """
+        # 获取结果数据
+        result = future.result().result
+        
+        self.get_logger().info(f'任务完成！')
+        self.get_logger().info(f'成功: {result.success}')
+        self.get_logger().info(f'消息: {result.message}')
+        
+        # 关闭节点
+        rclpy.shutdown()
+
+def main(args=None):
+    """主函数"""
+    # 初始化ROS2 Python接口
+    rclpy.init(args=args)
+    
+    # 创建动作客户端节点
+    action_client = CountdownActionClient()
+    
+    try:
+        # 发送目标请求：从数字5开始倒计时
+        action_client.send_goal(target_number=5)
+        
+        # 循环等待节点退出
+        rclpy.spin(action_client)
+    except KeyboardInterrupt:
+        pass
+    except rclpy.exceptions.RCLpyError:
+        # 正常退出时会有异常，忽略即可
+        pass
+    finally:
+        # 销毁节点
+        action_client.destroy_node()
+
+if __name__ == '__main__':
+    main()</code></pre>
+            </div>
+
+            <h3>（八）修改 setup.py</h3>
+            <p>在 <code>setup.py</code> 中添加入口点配置：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>from setuptools import setup
+
+package_name = 'learn_action'
+
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=[package_name],
+    data_files=[
+        ('share/ament_index/resource_index_packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='user',
+    maintainer_email='user@todo.todo',
+    description='ROS2 action learning package',
+    license='TODO: License declaration',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'countdown_server = learn_action.action_server:main',
+            'countdown_client = learn_action.action_client:main',
+        ],
+    },
+)</code></pre>
+            </div>
+
+            <h3>（九）编译运行与验证</h3>
+
+            <h4>1. 编译功能包</h4>
+            <p>返回工作空间根目录进行编译：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>cd ~/ros2_ws
+colcon build
+source install/setup.bash</code></pre>
+            </div>
+
+            <h4>2. 运行动作服务端</h4>
+            <p>打开第一个终端：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>cd ~/ros2_ws
+source install/setup.bash
+ros2 run learn_action countdown_server</code></pre>
+            </div>
+
+            <h4>3. 运行动作客户端</h4>
+            <p>打开第二个终端：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>cd ~/ros2_ws
+source install/setup.bash
+ros2 run learn_action countdown_client</code></pre>
+            </div>
+
+            <div class="img-center">
+                <img src="https://gitee.com/lvqi1013/imgs/raw/main/image-2.png" alt="动作运行结果">
+            </div>
+
+            <p>客户端发送目标请求后，服务端开始执行倒计时任务，期间持续发送反馈，最终返回结果。</p>
+
+            <h3>（十）使用命令行工具验证 Action</h3>
+
+            <h4>1. 查看动作列表</h4>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>ros2 action list</code></pre>
+            </div>
+
+            <h4>2. 查看动作信息</h4>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>ros2 action info /countdown</code></pre>
+            </div>
+
+            <h4>3. 通过命令行发送动作目标</h4>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code># 格式: ros2 action send_goal 动作名 动作类型 "{目标数据}"
+ros2 action send_goal /countdown action_interfaces/action/Countdown "{target_number: 3}"</code></pre>
+            </div>
+
+            <p>添加 <code>--feedback</code> 参数可以查看反馈信息：</p>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn">复制</button>
+                </div>
+                <pre><code>ros2 action send_goal /countdown action_interfaces/action/Countdown "{target_number: 3}" --feedback</code></pre>
+            </div>
+        </section>
+
+        <!-- 动作通信总结 -->
+        <section id="summary">
+            <h2>动作通信总结</h2>
+
+            <h3>动作通信的关键要点</h3>
+            <div class="info-box">
+                <strong>核心概念</strong>
+                <ul>
+                    <li>动作适合长时间运行的任务，提供目标-反馈-结果机制</li>
+                    <li>使用 <code>.action</code> 文件定义动作接口</li>
+                    <li>服务端通过 <code>ActionServer</code> 创建，处理目标和发送反馈</li>
+                    <li>客户端通过 <code>ActionClient</code> 创建，发送目标和接收结果</li>
+                    <li>使用 <code>ReentrantCallbackGroup</code> 防止回调阻塞</li>
+                </ul>
+            </div>
+
+            <h3>动作与服务的选择</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>场景</th>
+                            <th>推荐方式</th>
+                            <th>原因</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>快速查询/计算（毫秒级）</td>
+                            <td>服务</td>
+                            <td>一次请求-响应即可完成</td>
+                        </tr>
+                        <tr>
+                            <td>长时间任务（秒级以上）</td>
+                            <td>动作</td>
+                            <td>需要进度反馈和取消能力</td>
+                        </tr>
+                        <tr>
+                            <td>需要实时监控进度</td>
+                            <td>动作</td>
+                            <td>支持持续反馈机制</td>
+                        </tr>
+                        <tr>
+                            <td>需要中断执行</td>
+                            <td>动作</td>
+                            <td>支持目标取消功能</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Navigation Links -->
+        <div class="nav-links">
+            <a href="ros2_custom_interfaces.html" class="nav-prev">
+                <span class="arrow">←</span>
+                上一篇：自定义接口
+            </a>
+            <a href="ros2_parameters.html" class="nav-next">
+               下一篇：参数
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // Copy button functionality
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const pre = this.closest('.code-wrapper').querySelector('pre');
+                const code = pre.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    this.textContent = '已复制';
+                    this.classList.add('copied');
+                    setTimeout(() => {
+                        this.textContent = '复制';
+                        this.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
