@@ -329,7 +329,7 @@ class AddClient(Node):
     def __init__(self, node_name, service_name):
         super().__init__(node_name)
         self.client_ = self.create_client(AddTwoInts,service_name) # 创建服务客户端对象（服务接口类型，服务名）
-        while not self.client.wait_for_service(timeout_sec=1.0):# 循环等待服务器端成功启动
+        while not self.client_.wait_for_service(timeout_sec=1.0):# 循环等待服务器端成功启动
             self.get_logger().warn('service not available, waiting again...')
         
         self.request_ = AddTwoInts.Request() # 创建服务请求的数据对象
